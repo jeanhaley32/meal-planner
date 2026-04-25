@@ -259,30 +259,79 @@
     }
     .delete-btn:active { opacity: .7; }
 
-    /* ── Shopping ──────────────────────────────────────────────────────────── */
-    .shopping-list-wrap { border-top: 1px solid var(--border); }
-    .shopping-row {
-      display: flex; align-items: center; gap: 13px;
-      padding: 14px 20px; border-bottom: 1px solid var(--border-2);
-      background: var(--surface); transition: background .12s;
+    /* ── Shopping screen ─────────────────────────────────────────────────────── */
+    .shop-layout { display: flex; flex-direction: column; }
+    .shop-panel-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; border-bottom: 1px solid var(--border-2);
+      position: sticky; top: 0; background: var(--bg); z-index: 3;
     }
-    .shopping-row.done { background: var(--surface-2); }
-    .shopping-row:active { opacity: .7; }
-    .checkbox {
-      width: 22px; height: 22px; border-radius: 6px;
-      border: 1.5px solid var(--green-mid);
+    .shop-panel-title { font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--ink-3); }
+    #shop-list-count { font-weight: 500; color: var(--green); letter-spacing: 0; text-transform: none; font-size: 11px; margin-left: 6px; }
+
+    /* Source panel */
+    .plan-ing-card { padding: 14px 20px 6px; border-bottom: 1px solid var(--border); }
+    .plan-ing-card-name {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .plan-ing-card-name span { font-family: 'Playfair Display', Georgia, serif; font-size: 15px; font-weight: 700; color: var(--ink); }
+    .add-all-btn {
+      font-size: 11px; font-weight: 600; color: var(--green); background: var(--green-pale);
+      border: none; border-radius: 20px; padding: 4px 10px; letter-spacing: .3px;
+    }
+    .add-all-btn:active { opacity: .7; }
+    .shop-src-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid var(--border-2);
+      transition: opacity .15s;
+    }
+    .shop-src-row:last-child { border-bottom: none; }
+    .shop-src-row.added { opacity: .4; }
+    .shop-src-body { flex: 1; min-width: 0; }
+    .shop-src-name { font-size: 14px; color: var(--ink); }
+    .shop-src-qty { font-size: 12px; color: var(--ink-3); font-style: italic; margin-left: 6px; }
+    .shop-add-btn {
+      width: 28px; height: 28px; border-radius: 8px; border: none; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: background .15s, border-color .15s;
+      background: var(--green-pale); color: var(--green);
     }
-    .checkbox.checked { background: var(--green); border-color: var(--green); }
-    .checkbox.checked::after {
-      content: ''; width: 11px; height: 7px;
-      border-left: 2px solid #fff; border-bottom: 2px solid #fff;
-      transform: translateY(-1px) rotate(-45deg); display: block;
+    .shop-add-btn.added { background: var(--green-pale); color: var(--green); opacity: .5; cursor: default; }
+    .shop-add-btn:not(.added):active { background: var(--green); color: #fff; }
+
+    /* Shopping list panel */
+    .shop-cat-label {
+      padding: 8px 20px; font-size: 9px; font-weight: 700; letter-spacing: 1.6px;
+      text-transform: uppercase; color: var(--ink-3);
+      background: var(--surface-2); border-bottom: 1px solid var(--border-2);
+      border-top: 1px solid var(--border-2); margin-top: -1px;
     }
-    .shopping-name { flex: 1; font-size: 16px; color: var(--ink); }
-    .shopping-row.done .shopping-name { color: var(--ink-3); text-decoration: line-through; text-decoration-color: var(--ink-3); }
-    .shopping-qty { font-size: 13px; color: var(--ink-3); font-style: italic; }
+    .shop-item-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 11px 20px; border-bottom: 1px solid var(--border-2);
+      background: var(--surface); transition: opacity .15s;
+    }
+    .shop-item-row.have { opacity: .4; }
+    .shop-item-check {
+      width: 22px; height: 22px; border-radius: 7px; flex-shrink: 0; margin-top: 1px;
+      border: 2px solid var(--green-mid); background: none;
+      display: flex; align-items: center; justify-content: center; color: #fff;
+    }
+    .shop-item-check.checked { background: var(--green); border-color: var(--green); }
+    .shop-item-check:active { opacity: .7; }
+    .shop-item-body { flex: 1; min-width: 0; }
+    .shop-item-name { font-size: 15px; color: var(--ink); font-weight: 500; }
+    .shop-item-name.have { text-decoration: line-through; color: var(--ink-3); }
+    .shop-item-qty { font-size: 12px; color: var(--ink-3); font-style: italic; margin-top: 1px; }
+    .shop-item-sources { font-size: 11px; color: var(--green); margin-top: 3px; opacity: .8; }
+    .shop-item-rm {
+      width: 22px; height: 22px; border-radius: 6px; background: none; border: none;
+      color: var(--ink-3); font-size: 16px; line-height: 1;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .shop-item-rm:active { color: var(--red); }
+    .shop-list-empty { display: flex; flex-direction: column; align-items: center; padding: 48px 20px; text-align: center; }
 
     /* ── Book ──────────────────────────────────────────────────────────────── */
     .book-actions {
@@ -565,9 +614,13 @@
       }
       .book-recipe-card { margin-bottom: 0; }
 
-      /* ── Shopping max-width ──────────────────────────────────────────────── */
-      .shopping-list-wrap { max-width: 680px; }
-      #shopping-list      { max-width: 680px; }
+      /* ── Shopping two-column ─────────────────────────────────────────────── */
+      #screen-shopping { overflow: hidden !important; padding-bottom: 0 !important; }
+      .shop-layout { flex-direction: row; height: 100%; overflow: hidden; }
+      .shop-source-panel { flex: 0 0 42%; overflow-y: auto; height: 100%; border-right: 1px solid var(--border); }
+      .shop-list-panel { flex: 1; overflow-y: auto; height: 100%; }
+      .shop-panel-hdr { position: sticky; top: 0; }
+
       .screen-header > div:first-child { max-width: none; }
 
       /* ── Book actions better width ───────────────────────────────────────── */
@@ -632,9 +685,21 @@
 
     /* ── Print ─────────────────────────────────────────────────────────────── */
     #print-book { display: none; }
+    #print-shopping { display: none; }
     @media print {
       #app, .modal-overlay { display: none !important; }
       #print-book { display: block !important; }
+      #print-shopping { display: block !important; }
+      .print-shopping-header { text-align: center; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 2px solid #3D6B4F; }
+      .print-shopping-title { font-family: 'Playfair Display', Georgia, serif; font-size: 28pt; font-weight: 700; color: #1A1918; }
+      .print-shopping-date { font-family: 'Inter', Arial, sans-serif; font-size: 10pt; color: #6B6660; margin-top: 6px; letter-spacing: 1px; text-transform: uppercase; }
+      .print-shopping-cat-label { font-family: 'Inter', Arial, sans-serif; font-size: 8pt; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: #3D6B4F; margin: 20px 0 8px; padding-bottom: 4px; border-bottom: 1px solid #C2D8C8; }
+      .print-shopping-item { display: flex; align-items: baseline; gap: 10px; padding: 5px 0; border-bottom: 1px solid #EDECE7; font-family: 'Inter', Arial, sans-serif; font-size: 12pt; break-inside: avoid; }
+      .print-shopping-check { font-size: 13pt; color: #B0ACA5; flex-shrink: 0; }
+      .print-shopping-name { flex: 1; color: #1A1918; }
+      .print-shopping-qty { font-style: italic; color: #6B6660; font-size: 11pt; }
+      .print-shopping-body { columns: 2; column-gap: 32px; }
+      .print-shopping-cat-label { break-before: auto; }
       @page { margin: 2.2cm 2.5cm; }
       .print-cover {
         display: flex; flex-direction: column; align-items: center;
@@ -694,15 +759,24 @@
 
     <!-- Shopping -->
     <div id="screen-shopping" class="screen hidden">
-      <div class="screen-header">
-        <div>
-          <div class="eyebrow">Auto-generated</div>
-          <div class="screen-title">Shopping</div>
-          <div class="screen-sub" id="shopping-sub"></div>
+      <div class="shop-layout">
+        <div class="shop-source-panel">
+          <div class="shop-panel-hdr">
+            <span class="shop-panel-title">From your plan</span>
+          </div>
+          <div id="shop-source-list"></div>
         </div>
-        <button class="pill-btn hidden" id="btn-reset-shopping">Reset</button>
+        <div class="shop-list-panel">
+          <div class="shop-panel-hdr">
+            <span class="shop-panel-title">Shopping list <span id="shop-list-count"></span></span>
+            <div style="display:flex;gap:6px">
+              <button class="pill-btn" id="btn-print-shopping">Print</button>
+              <button class="pill-btn" id="btn-clear-shopping">Clear</button>
+            </div>
+          </div>
+          <div id="shop-list-body"></div>
+        </div>
       </div>
-      <div id="shopping-list"></div>
     </div>
 
     <!-- Book -->
@@ -787,6 +861,7 @@
 
 <!-- Print book -->
 <div id="print-book"></div>
+<div id="print-shopping"></div>
 
 <script>
   /* ── Constants ──────────────────────────────────────────────────────────── */
@@ -821,17 +896,19 @@
   const MINUS_SVG = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
   const EYE_SVG   = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
   const X_SVG     = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+  const CHECK_SVG = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
 
   /* ── State ──────────────────────────────────────────────────────────────── */
   const emptyPlan = () => DAYS_FULL.reduce((a,d)=>{a[d]={m:null,i:null,s:null};return a;},{});
-  let S = { recipes: INITIAL_RECIPES.map(r=>({...r})), plan: emptyPlan(), checkedItems:{} };
+  let S = { recipes: INITIAL_RECIPES.map(r=>({...r})), plan: emptyPlan(), shoppingList:[], haveItems:{} };
 
   function load() {
     try {
       const p = JSON.parse(localStorage.getItem('mealplanner-v1')||'{}');
       if (p.recipes)      S.recipes      = p.recipes;
       if (p.plan)         S.plan         = p.plan;
-      if (p.checkedItems) S.checkedItems = p.checkedItems;
+      if (p.shoppingList) S.shoppingList = p.shoppingList;
+      if (p.haveItems)    S.haveItems    = p.haveItems;
     } catch(_){}
   }
   const save = () => { try { localStorage.setItem('mealplanner-v1', JSON.stringify(S)); } catch(_){} };
@@ -1019,52 +1096,175 @@
 
 
   /* ── Shopping ────────────────────────────────────────────────────────────── */
-  function buildShoppingList(){
-    const agg={};
+  const CAT_KEYS=[
+    ['produce',     ['garlic','onion','shallot','leek','tomato','pepper','bell pepper','chili','spinach','lettuce','romaine','kale','cabbage','broccoli','carrot','celery','cucumber','zucchini','eggplant','potato','sweet potato','avocado','lemon','lime','orange','apple','banana','berry','strawberry','blueberry','raspberry','grape','mango','pineapple','peach','pear','ginger','basil','parsley','cilantro','thyme','rosemary','mint','sage','dill','chive','scallion','mushroom','asparagus','artichoke','corn','peas','green bean','edamame','bok choy','arugula','cauliflower','herb']],
+    ['dairy & eggs',['egg','milk','cream','butter','cheese','parmesan','mozzarella','cheddar','feta','brie','ricotta','cream cheese','sour cream','yogurt','greek yogurt','ghee','gouda','mascarpone','whipping cream','heavy cream']],
+    ['meat & fish', ['chicken','beef','pork','lamb','turkey','duck','bacon','sausage','ham','prosciutto','salami','steak','ribeye','salmon','tuna','cod','shrimp','prawns','scallop','lobster','anchovy','tilapia','halibut','sea bass','mince','ground beef','ground turkey','fillet']],
+    ['bakery',      ['bread','sourdough','baguette','tortilla','pita','naan','crouton','breadcrumb','roll']],
+    ['pantry',      ['pasta','spaghetti','penne','linguine','rice','quinoa','lentil','chickpea','bean','oat','granola','flour','sugar','salt','olive oil','oil','vinegar','soy sauce','fish sauce','honey','maple syrup','cumin','turmeric','paprika','cinnamon','cayenne','chili powder','curry','oregano','bay leaf','vanilla','chocolate','nut','almond','walnut','peanut','cashew','sesame','chia','stock','broth','coconut milk','canned','mustard','sesame oil']],
+  ];
+  const CAT_ORDER=['produce','dairy & eggs','meat & fish','bakery','pantry','other'];
+  const CAT_LABEL={'produce':'Produce','dairy & eggs':'Dairy & Eggs','meat & fish':'Meat & Fish','bakery':'Bakery','pantry':'Pantry & Dry Goods','other':'Other'};
+  function getCategory(name){const l=name.toLowerCase();for(const[cat,keys]of CAT_KEYS)if(keys.some(k=>l.includes(k)))return cat;return'other';}
+
+  function _plannedRecipes(){
+    const seen=new Set(), out=[];
     Object.values(S.plan).forEach(dp=>Object.values(dp).forEach(r=>{
-      if(!r) return;
-      r.ingredients.forEach(ing=>{
-        const k=ing.name.toLowerCase();
-        if(!agg[k]) agg[k]={name:ing.name,qty:0,unit:ing.unit};
-        agg[k].qty+=parseFloat(ing.qty)||0;
-      });
+      if(r&&!seen.has(r.id)){seen.add(r.id);out.push(r);}
     }));
-    return Object.values(agg).sort((a,b)=>a.name.localeCompare(b.name));
+    return out;
+  }
+  function _inShoppingList(ingName){
+    return S.shoppingList.some(i=>i.name.toLowerCase()===ingName.toLowerCase().trim());
+  }
+  function _addIngToList(ing,recipeName){
+    const key=ing.name.toLowerCase().trim();
+    const ex=S.shoppingList.find(i=>i.name.toLowerCase()===key);
+    if(ex){
+      ex.qty=(parseFloat(ex.qty)||0)+(parseFloat(ing.qty)||0);
+      if(recipeName&&!ex.recipes.includes(recipeName)) ex.recipes.push(recipeName);
+    } else {
+      S.shoppingList.push({id:uid(),name:ing.name.trim(),qty:parseFloat(ing.qty)||0,
+        unit:ing.unit||'',category:getCategory(ing.name),recipes:recipeName?[recipeName]:[]});
+    }
   }
 
   function renderShopping(){
-    const list=buildShoppingList();
-    const rem=list.filter(i=>!S.checkedItems[i.name.toLowerCase()]).length;
-    const resetBtn=$('btn-reset-shopping');
-    if(!list.length){
-      $('shopping-sub').textContent='';
-      resetBtn.classList.add('hidden');
-      $('shopping-list').innerHTML=`<div class="empty-state">
-        <div class="empty-icon">🧺</div>
-        <div class="empty-text">Your list is empty.<br>Plan some meals first.</div>
+    renderShopSource();
+    renderShopList();
+  }
+
+  function renderShopSource(){
+    const src=$('shop-source-list');
+    const planned=_plannedRecipes();
+    if(!planned.length){
+      src.innerHTML=`<div class="empty-state" style="padding:40px 20px">
+        <div class="empty-icon">🗓️</div>
+        <div class="empty-text">No meals planned yet.<br>Plan some meals first.</div>
         <button class="go-btn" id="go-to-plan">Go to Plan →</button>
       </div>`;
       $('go-to-plan').addEventListener('click',()=>switchTab('plan'));
       return;
     }
-    $('shopping-sub').textContent=`${rem} of ${list.length} remaining`;
-    resetBtn.classList.remove('hidden');
-    $('shopping-list').innerHTML=`<div class="shopping-list-wrap">`+
-      list.map(item=>{
-        const k=item.name.toLowerCase(), done=!!S.checkedItems[k];
-        const qty=item.qty, qs=qty>0?`${Number.isInteger(qty)?qty:qty.toFixed(1)} ${item.unit}`.trim():'';
-        return `<div class="shopping-row${done?' done':''}" data-key="${esc(k)}">
-          <div class="checkbox${done?' checked':''}"></div>
-          <span class="shopping-name">${esc(item.name)}</span>
-          ${qs?`<span class="shopping-qty">${esc(qs)}</span>`:''}
-        </div>`;
-      }).join('')+`</div>`;
-    $('shopping-list').querySelectorAll('.shopping-row').forEach(row=>
-      row.addEventListener('click',()=>{
-        S.checkedItems[row.dataset.key]=!S.checkedItems[row.dataset.key];
+    src.innerHTML=planned.map(r=>`
+      <div class="plan-ing-card">
+        <div class="plan-ing-card-name">
+          <span>${esc(r.name)}</span>
+          <button class="add-all-btn" data-rid="${esc(r.id)}">Add all</button>
+        </div>
+        ${r.ingredients.map(ing=>{
+          const added=_inShoppingList(ing.name);
+          const q=parseFloat(ing.qty)||0;
+          const qs=q?`${fmtQ(ing.qty)} ${ing.unit}`.trim():'';
+          return `<div class="shop-src-row${added?' added':''}">
+            <div class="shop-src-body">
+              <span class="shop-src-name">${esc(ing.name)}</span>
+              ${qs?`<span class="shop-src-qty">${esc(qs)}</span>`:''}
+            </div>
+            <button class="shop-add-btn${added?' added':''}"
+              data-rid="${esc(r.id)}" data-name="${esc(ing.name)}"
+              data-qty="${esc(ing.qty)}" data-unit="${esc(ing.unit||'')}"
+              ${added?'disabled':''} aria-label="Add ${esc(ing.name)}">
+              ${added?CHECK_SVG:PLUS_SVG}
+            </button>
+          </div>`;
+        }).join('')}
+      </div>`).join('');
+
+    src.querySelectorAll('.shop-add-btn:not([disabled])').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const recipe=S.recipes.find(r=>r.id===btn.dataset.rid);
+        _addIngToList({name:btn.dataset.name,qty:btn.dataset.qty,unit:btn.dataset.unit},recipe?.name||'');
         save(); renderShopping();
-      })
-    );
+      });
+    });
+    src.querySelectorAll('.add-all-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const recipe=S.recipes.find(r=>r.id===btn.dataset.rid);
+        if(!recipe) return;
+        recipe.ingredients.forEach(ing=>{
+          if(!_inShoppingList(ing.name)) _addIngToList(ing,recipe.name);
+        });
+        save(); renderShopping();
+      });
+    });
+  }
+
+  function renderShopList(){
+    const body=$('shop-list-body'), cnt=$('shop-list-count');
+    const needCount=S.shoppingList.filter(i=>!S.haveItems[i.id]).length;
+    if(!S.shoppingList.length){
+      cnt.textContent='';
+      body.innerHTML=`<div class="shop-list-empty">
+        <div style="font-size:36px;margin-bottom:12px">🛒</div>
+        <div class="empty-text">Tap + on any ingredient<br>to add it here.</div>
+      </div>`;
+      return;
+    }
+    cnt.textContent=`· ${needCount} to buy`;
+    const grouped={};
+    S.shoppingList.forEach(item=>{const c=item.category||'other';if(!grouped[c])grouped[c]=[];grouped[c].push(item);});
+    body.innerHTML=CAT_ORDER.filter(c=>grouped[c]).map(c=>`
+      <div>
+        <div class="shop-cat-label">${CAT_LABEL[c]}</div>
+        ${grouped[c].map(item=>{
+          const have=!!S.haveItems[item.id];
+          const qs=item.qty>0?`${Number.isInteger(item.qty)?item.qty:item.qty.toFixed(1)} ${item.unit}`.trim():'';
+          return `<div class="shop-item-row${have?' have':''}">
+            <button class="shop-item-check${have?' checked':''}" data-id="${esc(item.id)}">${have?CHECK_SVG:''}</button>
+            <div class="shop-item-body">
+              <div class="shop-item-name${have?' have':''}">${esc(item.name)}</div>
+              ${qs?`<div class="shop-item-qty">${esc(qs)}</div>`:''}
+              ${item.recipes.length?`<div class="shop-item-sources">${esc(item.recipes.join(' · '))}</div>`:''}
+            </div>
+            <button class="shop-item-rm" data-id="${esc(item.id)}" aria-label="Remove">×</button>
+          </div>`;
+        }).join('')}
+      </div>`).join('');
+
+    body.querySelectorAll('.shop-item-check').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const id=btn.dataset.id;
+        if(S.haveItems[id]) delete S.haveItems[id]; else S.haveItems[id]=true;
+        save(); renderShopList();
+      });
+    });
+    body.querySelectorAll('.shop-item-rm').forEach(btn=>{
+      btn.addEventListener('click',e=>{
+        e.stopPropagation();
+        const id=btn.dataset.id;
+        S.shoppingList=S.shoppingList.filter(i=>i.id!==id);
+        delete S.haveItems[id];
+        save(); renderShopping();
+      });
+    });
+  }
+
+  function buildPrintShopping(){
+    const items=S.shoppingList.filter(i=>!S.haveItems[i.id]);
+    if(!items.length){ alert('Nothing to print — mark items as needed first.'); return false; }
+    const grouped={};
+    items.forEach(item=>{const c=item.category||'other';if(!grouped[c])grouped[c]=[];grouped[c].push(item);});
+    $('print-shopping').innerHTML=`
+      <div class="print-shopping-header">
+        <div class="print-shopping-title">Shopping List</div>
+        <div class="print-shopping-date">${new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</div>
+      </div>
+      <div class="print-shopping-body">
+        ${CAT_ORDER.filter(c=>grouped[c]).map(c=>`
+          <div>
+            <div class="print-shopping-cat-label">${CAT_LABEL[c]}</div>
+            ${grouped[c].map(item=>{
+              const qs=item.qty>0?`${Number.isInteger(item.qty)?item.qty:item.qty.toFixed(1)} ${item.unit}`.trim():'';
+              return `<div class="print-shopping-item">
+                <span class="print-shopping-check">□</span>
+                <span class="print-shopping-name">${esc(item.name)}</span>
+                ${qs?`<span class="print-shopping-qty">${esc(qs)}</span>`:''}
+              </div>`;
+            }).join('')}
+          </div>`).join('')}
+      </div>`;
+    return true;
   }
 
   /* ── Book ────────────────────────────────────────────────────────────────── */
@@ -1398,7 +1598,8 @@
   document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab)));
   $('btn-new-recipe').addEventListener('click',openNewRecipePage);
   $('picker-cancel').addEventListener('click',closeModal);
-  $('btn-reset-shopping').addEventListener('click',()=>{S.checkedItems={}; save(); renderShopping();});
+  $('btn-clear-shopping').addEventListener('click',()=>{ if(!S.shoppingList.length) return; if(confirm('Clear the shopping list?')){ S.shoppingList=[]; S.haveItems={}; save(); renderShopping(); }});
+  $('btn-print-shopping').addEventListener('click',()=>{ if(buildPrintShopping()) window.print(); });
   $('btn-print-book').addEventListener('click',()=>{buildPrintBook(); window.print();});
   $('btn-export-yaml').addEventListener('click',downloadYaml);
   $('btn-import-yaml').addEventListener('click',()=>$('yaml-file-input').click());
