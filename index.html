@@ -614,6 +614,7 @@
       .day-chip:not(.active):hover { border-color: var(--green-mid); }
       .book-btn:hover:not(.primary) { background: var(--surface-2); }
       .book-btn.primary:hover { background: var(--green-dk); }
+      .book-recipe-card:hover { background: var(--green-pale); }
     }
 
     /* ── Print ─────────────────────────────────────────────────────────────── */
@@ -1093,7 +1094,7 @@
       return;
     }
     prev.innerHTML=S.recipes.map(r=>`
-      <div class="book-recipe-card">
+      <div class="book-recipe-card" data-id="${esc(r.id)}" style="cursor:pointer">
         <div class="book-recipe-name">${esc(r.name)}</div>
         <div class="book-section-label">Ingredients</div>
         ${r.ingredients.map(ing=>{
@@ -1103,6 +1104,12 @@
         <div class="book-section-label" style="margin-top:12px">Directions</div>
         ${r.directions.map((d,i)=>`<div class="book-dir-row"><span class="book-dir-num">${i+1}</span><span class="book-dir-text">${esc(d)}</span></div>`).join('')}
       </div>`).join('');
+    prev.querySelectorAll('.book-recipe-card').forEach(card=>{
+      card.addEventListener('click',()=>{
+        const r=S.recipes.find(x=>x.id===card.dataset.id);
+        if(r) openDetail(r);
+      });
+    });
   }
 
   function buildPrintBook(){
