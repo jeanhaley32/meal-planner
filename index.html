@@ -3,476 +3,638 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Meal Planner</title>
+  <title>mise · Meal Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
   <style>
-    /* ── Variables ───────────────────────────────────────────────────────────── */
+    /* ── Design tokens ─────────────────────────────────────────────────────── */
     :root {
-      --bg:     #FAF8F3;
-      --ink:    #1C1610;
-      --gold:   #C4A882;
-      --muted:  #9A8060;
-      --border: #E5DDD0;
-      --dark:   #2C2416;
-      --white:  #FFFFFF;
-      --cream:  #F0EBE2;
-      --light:  #EDE5D8;
-      --nav-h:  64px;
-      --sb:     env(safe-area-inset-bottom, 0px);
+      --bg:         #F8F7F3;
+      --surface:    #FFFFFF;
+      --surface-2:  #F2F1EC;
+      --ink:        #1A1918;
+      --ink-2:      #6B6660;
+      --ink-3:      #B0ACA5;
+      --green:      #3D6B4F;
+      --green-dk:   #2D5540;
+      --green-pale: #EBF2EE;
+      --green-mid:  #C2D8C8;
+      --border:     #E3E1DB;
+      --border-2:   #EDECE7;
+      --red:        #C53A3A;
+      --red-pale:   #FEF1F1;
+      --nav-h:      58px;
+      --sb:         env(safe-area-inset-bottom, 0px);
+      --r-sm:       8px;
+      --r:          12px;
+      --r-lg:       16px;
     }
 
-    /* ── Reset ───────────────────────────────────────────────────────────────── */
+    /* ── Reset ─────────────────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: Georgia, 'Times New Roman', serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--ink);
       height: 100dvh;
       overflow: hidden;
       -webkit-tap-highlight-color: transparent;
     }
+    button { font-family: inherit; cursor: pointer; }
+    input, textarea { font-family: inherit; }
+    svg { display: block; flex-shrink: 0; }
 
-    /* ── App shell ───────────────────────────────────────────────────────────── */
+    /* ── App shell ─────────────────────────────────────────────────────────── */
     #app { display: flex; flex-direction: column; height: 100dvh; }
     main { flex: 1; overflow: hidden; position: relative; }
-
     .screen {
       position: absolute; inset: 0;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
       padding-bottom: calc(var(--nav-h) + var(--sb) + 24px);
     }
     .screen.hidden { display: none !important; }
 
-    /* ── Bottom nav ──────────────────────────────────────────────────────────── */
+    /* ── Bottom nav ────────────────────────────────────────────────────────── */
     #bottom-nav {
       height: calc(var(--nav-h) + var(--sb));
       padding-bottom: var(--sb);
-      background: rgba(250,248,243,0.97);
+      background: rgba(248,247,243,0.96);
       border-top: 1px solid var(--border);
       display: flex;
       flex-shrink: 0;
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
     .nav-btn {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      gap: 3px; background: none; border: none; cursor: pointer;
-      font-family: inherit;
+      gap: 4px; background: none; border: none;
+      padding: 0; position: relative;
     }
-    .nav-icon { font-size: 22px; line-height: 1; opacity: 0.4; transition: opacity .15s; }
-    .nav-label { font-size: 11px; letter-spacing: .5px; font-weight: 500; color: var(--muted); transition: color .15s; }
-    .nav-btn.active .nav-icon  { opacity: 1; }
-    .nav-btn.active .nav-label { color: var(--dark); }
+    .nav-icon {
+      color: var(--ink-3);
+      transition: color .18s ease;
+    }
+    .nav-label {
+      font-size: 10px; font-weight: 500; letter-spacing: .6px;
+      text-transform: uppercase; color: var(--ink-3);
+      transition: color .18s ease;
+    }
+    .nav-btn.active .nav-icon  { color: var(--green); }
+    .nav-btn.active .nav-label { color: var(--green); }
+    .nav-btn.active::after {
+      content: ''; position: absolute; bottom: 2px;
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--green);
+    }
 
-    /* ── Screen headers ──────────────────────────────────────────────────────── */
+    /* ── Screen structure ──────────────────────────────────────────────────── */
     .screen-header {
-      padding: 16px 20px 12px;
+      padding: 20px 20px 14px;
       display: flex; align-items: flex-end; justify-content: space-between;
     }
+    .wordmark {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic; font-weight: 400;
+      font-size: 12px; color: var(--green);
+      letter-spacing: .3px; margin-bottom: 6px;
+    }
     .eyebrow {
-      font-size: 11px; letter-spacing: 1.6px;
-      text-transform: uppercase; color: var(--muted);
+      font-size: 10px; font-weight: 600; letter-spacing: 1.4px;
+      text-transform: uppercase; color: var(--ink-3);
     }
     .screen-title {
-      font-size: 28px; font-weight: 700; color: var(--ink);
-      letter-spacing: -.5px; line-height: 1.1;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 30px; font-weight: 700; color: var(--ink);
+      letter-spacing: -.3px; line-height: 1.1; margin-top: 2px;
     }
-    .screen-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .screen-sub {
+      font-size: 13px; font-weight: 400; color: var(--ink-2);
+      margin-top: 3px;
+    }
+    .divider { height: 1px; background: var(--border); margin: 0; }
 
-    /* ── Shared buttons ──────────────────────────────────────────────────────── */
-    .icon-btn {
-      width: 44px; height: 44px; border-radius: 14px;
-      background: var(--dark); border: none; cursor: pointer;
+    /* ── Shared buttons ────────────────────────────────────────────────────── */
+    .add-btn {
+      width: 40px; height: 40px; border-radius: var(--r);
+      background: var(--green); border: none;
       display: flex; align-items: center; justify-content: center;
-      font-size: 26px; color: #fff; font-family: inherit; flex-shrink: 0;
-      line-height: 1;
+      color: #fff; flex-shrink: 0; transition: background .15s;
     }
-    .icon-btn:active { opacity: .8; }
+    .add-btn:active { background: var(--green-dk); }
 
     .pill-btn {
-      border: 1.5px solid var(--border); border-radius: 20px;
-      padding: 7px 14px; background: var(--white); font-family: inherit;
-      font-size: 13px; color: var(--muted); cursor: pointer;
+      padding: 7px 14px; border-radius: 20px;
+      border: 1px solid var(--border); background: var(--surface);
+      font-size: 12px; font-weight: 500; color: var(--ink-2);
+      letter-spacing: .3px;
     }
     .pill-btn:active { opacity: .7; }
 
     .go-btn {
-      margin-top: 20px; background: var(--dark); border: none;
-      border-radius: 30px; padding: 12px 28px; font-size: 15px;
-      color: #fff; font-family: inherit; cursor: pointer;
+      margin-top: 20px; background: var(--green); border: none;
+      border-radius: 24px; padding: 11px 28px;
+      font-size: 14px; font-weight: 600; color: #fff;
     }
-    .go-btn:active { opacity: .8; }
+    .go-btn:active { background: var(--green-dk); }
 
-    /* ── Plan — day chips ────────────────────────────────────────────────────── */
+    /* ── Plan — day chips ──────────────────────────────────────────────────── */
     .day-scroll {
-      display: flex; gap: 8px; padding: 0 20px;
+      display: flex; gap: 7px; padding: 0 20px;
       overflow-x: auto; -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
     }
     .day-scroll::-webkit-scrollbar { display: none; }
 
     .day-chip {
-      width: 52px; height: 68px; border-radius: 16px;
-      border: 1.5px solid var(--border); background: var(--white);
+      width: 50px; height: 66px; border-radius: 14px;
+      border: 1px solid var(--border); background: var(--surface);
       display: flex; flex-direction: column; align-items: center;
-      justify-content: center; gap: 2px; cursor: pointer;
-      flex-shrink: 0; font-family: inherit; position: relative;
+      justify-content: center; gap: 2px; flex-shrink: 0;
+      position: relative; transition: border-color .15s, background .15s;
     }
-    .day-chip.active  { background: var(--dark); border-color: var(--dark); }
+    .day-chip.active { background: var(--green); border-color: var(--green); }
     .day-chip.weekend .day-name,
-    .day-chip.weekend .day-num { color: var(--gold); }
-    .day-chip.active  .day-name { color: rgba(255,255,255,.6); }
-    .day-chip.active  .day-num  { color: #fff; }
+    .day-chip.weekend .day-num { color: var(--green); }
+    .day-chip.active .day-name { color: rgba(255,255,255,.65); }
+    .day-chip.active .day-num  { color: #fff; }
 
-    .day-name { font-size: 10px; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); }
-    .day-num  { font-size: 18px; font-weight: 700; color: var(--ink); }
+    .day-name {
+      font-size: 9px; font-weight: 600; letter-spacing: .8px;
+      text-transform: uppercase; color: var(--ink-3);
+    }
+    .day-num {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 20px; font-weight: 700; color: var(--ink);
+    }
     .day-chip-dot {
       width: 4px; height: 4px; border-radius: 50%;
-      background: var(--gold); position: absolute; bottom: 8px; opacity: .6;
+      position: absolute; bottom: 7px;
+      background: var(--green-mid);
     }
-    .day-chip.active .day-chip-dot { opacity: 1; }
+    .day-chip.active .day-chip-dot { background: rgba(255,255,255,.7); }
 
     .day-label-row { padding: 16px 20px 10px; }
-    .day-label { font-size: 18px; font-weight: 600; color: var(--ink); }
+    .day-label {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 17px; font-weight: 600; color: var(--ink);
+    }
 
-    /* ── Plan — slot cards ───────────────────────────────────────────────────── */
+    /* ── Slot cards ────────────────────────────────────────────────────────── */
     .slot-card {
-      display: flex; align-items: center; gap: 14px;
-      background: var(--white); border-radius: 16px;
-      border: 1.5px solid var(--border); padding: 14px;
-      margin: 0 16px 10px; cursor: pointer;
+      display: flex; align-items: center; gap: 13px;
+      background: var(--surface); border-radius: var(--r-lg);
+      border: 1px solid var(--border); padding: 14px 14px 14px 16px;
+      margin: 0 16px 9px;
+      box-shadow: inset 3px 0 0 transparent;
+      transition: box-shadow .15s;
     }
-    .slot-card:active { opacity: .85; }
-    .slot-icon {
-      width: 44px; height: 44px; border-radius: 13px; background: var(--cream);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px; flex-shrink: 0;
+    .slot-card.filled {
+      box-shadow: inset 3px 0 0 var(--green);
     }
-    .slot-icon.filled { background: var(--dark); }
-    .slot-text  { flex: 1; min-width: 0; }
-    .slot-label { font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); }
-    .slot-name  { font-size: 15px; font-weight: 600; color: var(--ink); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .slot-empty { font-size: 14px; color: #C8BDB0; margin-top: 1px; }
-    .slot-actions { display: flex; gap: 6px; flex-shrink: 0; }
-    .slot-action-btn {
-      width: 34px; height: 34px; border-radius: 10px; background: var(--cream);
-      border: none; cursor: pointer; display: flex; align-items: center;
-      justify-content: center; font-size: 16px; font-family: inherit;
-    }
-    .slot-action-btn.remove { font-size: 20px; color: var(--muted); font-weight: 300; line-height: 1; }
-    .slot-action-btn:active { opacity: .7; }
-    .slot-add {
-      width: 30px; height: 30px; border-radius: 10px;
-      border: 1.5px dashed var(--border); display: flex;
-      align-items: center; justify-content: center;
-      font-size: 18px; color: var(--border); flex-shrink: 0;
-    }
+    .slot-card:active { opacity: .88; }
 
-    /* ── Recipes list ────────────────────────────────────────────────────────── */
-    .recipe-list { border-top: 1px solid var(--border); }
-    .recipe-row {
-      display: flex; align-items: center; gap: 12px;
-      padding: 14px 20px; border-bottom: 1px solid var(--border);
-      background: var(--white); cursor: pointer;
-    }
-    .recipe-row:active { background: rgba(196,168,130,.1); }
-    .recipe-icon {
-      width: 40px; height: 40px; border-radius: 12px; background: var(--cream);
+    .slot-icon {
+      width: 42px; height: 42px; border-radius: 11px;
+      background: var(--surface-2);
       display: flex; align-items: center; justify-content: center;
       font-size: 20px; flex-shrink: 0;
     }
+    .slot-text  { flex: 1; min-width: 0; }
+    .slot-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--ink-3);
+    }
+    .slot-name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 15px; font-weight: 600; color: var(--ink);
+      margin-top: 2px; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .slot-empty {
+      font-size: 13px; font-weight: 400; color: var(--ink-3);
+      margin-top: 2px;
+    }
+    .slot-actions { display: flex; gap: 5px; flex-shrink: 0; }
+    .slot-btn {
+      width: 32px; height: 32px; border-radius: var(--r-sm);
+      background: var(--surface-2); border: none;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink-2);
+    }
+    .slot-btn:active { opacity: .7; }
+    .slot-btn.remove { color: var(--red); }
+    .slot-add {
+      width: 28px; height: 28px; border-radius: var(--r-sm);
+      border: 1.5px dashed var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink-3); flex-shrink: 0;
+    }
+
+    /* ── Recipe list ───────────────────────────────────────────────────────── */
+    .recipe-list { border-top: 1px solid var(--border); }
+    .recipe-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 20px; border-bottom: 1px solid var(--border-2);
+      background: var(--surface);
+    }
+    .recipe-row:active { background: var(--green-pale); }
+
+    .recipe-avatar {
+      width: 40px; height: 40px; border-radius: var(--r);
+      background: var(--green-pale);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 17px; font-weight: 700; color: var(--green);
+      flex-shrink: 0; text-transform: uppercase;
+    }
     .recipe-text { flex: 1; min-width: 0; }
-    .recipe-name { font-size: 15px; font-weight: 600; color: var(--ink); }
-    .recipe-sub  { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .recipe-name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 15px; font-weight: 600; color: var(--ink);
+    }
+    .recipe-sub  { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+
     .delete-btn {
-      width: 32px; height: 32px; border-radius: 8px; background: #F8F0EE;
-      border: none; cursor: pointer; display: flex; align-items: center;
-      justify-content: center; font-size: 12px; color: #C0796A;
-      font-weight: 600; flex-shrink: 0; font-family: inherit;
+      width: 30px; height: 30px; border-radius: var(--r-sm);
+      background: var(--red-pale); border: none;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--red); flex-shrink: 0;
     }
     .delete-btn:active { opacity: .7; }
 
-    /* ── Shopping ────────────────────────────────────────────────────────────── */
+    /* ── Shopping ──────────────────────────────────────────────────────────── */
     .shopping-list-wrap { border-top: 1px solid var(--border); }
     .shopping-row {
-      display: flex; align-items: center; gap: 12px;
-      padding: 14px 20px; border-bottom: 1px solid var(--border);
-      background: var(--white); cursor: pointer;
+      display: flex; align-items: center; gap: 13px;
+      padding: 14px 20px; border-bottom: 1px solid var(--border-2);
+      background: var(--surface);
     }
-    .shopping-row.done { background: rgba(196,168,130,.07); }
+    .shopping-row.done { background: var(--surface-2); }
     .shopping-row:active { opacity: .7; }
-    .checkbox {
-      width: 22px; height: 22px; border-radius: 7px;
-      border: 2px solid var(--gold); display: flex;
-      align-items: center; justify-content: center; flex-shrink: 0;
-    }
-    .checkbox.checked { background: var(--gold); border-color: var(--gold); }
-    .checkbox.checked::after { content: '✓'; font-size: 12px; color: #fff; font-weight: 700; }
-    .shopping-name { flex: 1; font-size: 17px; color: var(--ink); }
-    .shopping-row.done .shopping-name { color: #C8BDB0; text-decoration: line-through; }
-    .shopping-qty { font-size: 14px; color: var(--muted); font-style: italic; }
 
-    /* ── Book screen ─────────────────────────────────────────────────────────── */
+    .checkbox {
+      width: 22px; height: 22px; border-radius: 6px;
+      border: 1.5px solid var(--green-mid);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background .15s, border-color .15s;
+    }
+    .checkbox.checked { background: var(--green); border-color: var(--green); }
+    .checkbox.checked::after {
+      content: '';
+      width: 11px; height: 7px;
+      border-left: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      transform: translateY(-1px) rotate(-45deg);
+      display: block;
+    }
+    .shopping-name { flex: 1; font-size: 16px; color: var(--ink); }
+    .shopping-row.done .shopping-name {
+      color: var(--ink-3); text-decoration: line-through;
+      text-decoration-color: var(--ink-3);
+    }
+    .shopping-qty { font-size: 13px; color: var(--ink-3); font-style: italic; }
+
+    /* ── Book screen ───────────────────────────────────────────────────────── */
     .book-actions {
-      display: flex; gap: 10px; padding: 0 16px 16px; flex-wrap: wrap;
+      display: flex; gap: 8px; padding: 0 16px 16px; flex-wrap: wrap;
     }
     .book-btn {
-      flex: 1; min-width: 130px; padding: 12px 16px; border-radius: 12px;
-      border: 1.5px solid var(--border); background: var(--white);
-      font-family: inherit; font-size: 14px; color: var(--ink);
-      cursor: pointer; text-align: center;
+      flex: 1; min-width: 130px; padding: 11px 16px; border-radius: var(--r);
+      border: 1px solid var(--border); background: var(--surface);
+      font-size: 13px; font-weight: 500; color: var(--ink);
+      display: flex; align-items: center; justify-content: center; gap: 7px;
     }
-    .book-btn.primary { background: var(--dark); color: #fff; border-color: var(--dark); }
+    .book-btn.primary {
+      background: var(--green); color: #fff; border-color: var(--green);
+    }
     .book-btn:active { opacity: .8; }
 
     .book-preview { padding: 0 16px; }
     .book-recipe-card {
-      background: var(--white); border-radius: 16px;
-      border: 1.5px solid var(--border); padding: 20px; margin-bottom: 12px;
+      background: var(--surface); border-radius: var(--r-lg);
+      border: 1px solid var(--border); padding: 20px; margin-bottom: 10px;
     }
     .book-recipe-name {
-      font-size: 20px; font-weight: 700; color: var(--ink);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 19px; font-weight: 700; color: var(--ink);
       margin-bottom: 14px; padding-bottom: 12px;
       border-bottom: 1px solid var(--border);
     }
     .book-section-label {
-      font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase;
-      color: var(--muted); margin-bottom: 8px;
+      font-size: 9px; font-weight: 600; letter-spacing: 1.4px;
+      text-transform: uppercase; color: var(--ink-3); margin-bottom: 8px;
     }
     .book-ing-row {
       display: flex; justify-content: space-between;
-      padding: 6px 0; border-bottom: 1px solid var(--light); font-size: 14px;
+      padding: 5px 0; border-bottom: 1px solid var(--border-2); font-size: 13px;
     }
     .book-ing-row:last-of-type { border-bottom: none; }
-    .book-ing-qty { color: var(--muted); font-style: italic; }
-    .book-dir-row { display: flex; gap: 12px; padding: 6px 0; }
-    .book-dir-num { font-size: 18px; color: var(--gold); font-weight: 700; font-style: italic; width: 22px; flex-shrink: 0; }
-    .book-dir-text { font-size: 14px; line-height: 1.6; color: var(--ink); }
+    .book-ing-qty { color: var(--ink-3); font-style: italic; }
+    .book-dir-row { display: flex; gap: 10px; padding: 5px 0; }
+    .book-dir-num {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 16px; color: var(--green); font-style: italic;
+      font-weight: 700; width: 20px; flex-shrink: 0; line-height: 1.5;
+    }
+    .book-dir-text { font-size: 13px; line-height: 1.6; color: var(--ink-2); }
 
-    /* ── Banner ──────────────────────────────────────────────────────────────── */
+    /* ── Banner ────────────────────────────────────────────────────────────── */
     .banner {
-      margin: 0 16px 10px; background: #e8f5e9; border-radius: 12px;
-      padding: 12px; border: 1px solid #c8e6c9; font-size: 14px; color: #2e7d32;
+      margin: 0 16px 10px; background: var(--green-pale); border-radius: var(--r);
+      padding: 11px 14px; border: 1px solid var(--green-mid);
+      font-size: 13px; font-weight: 500; color: var(--green-dk);
     }
 
-    /* ── Empty state ─────────────────────────────────────────────────────────── */
+    /* ── Empty state ───────────────────────────────────────────────────────── */
     .empty-state {
       display: flex; flex-direction: column; align-items: center;
-      justify-content: center; padding: 80px 20px; text-align: center;
+      justify-content: center; padding: 72px 20px; text-align: center;
     }
-    .empty-icon { font-size: 48px; margin-bottom: 14px; }
-    .empty-text { font-size: 16px; color: var(--muted); line-height: 1.6; }
+    .empty-icon { font-size: 44px; margin-bottom: 14px; opacity: .6; }
+    .empty-text { font-size: 15px; color: var(--ink-3); line-height: 1.6; }
 
-    /* ── Modal overlay ───────────────────────────────────────────────────────── */
+    /* ── Modal overlay ─────────────────────────────────────────────────────── */
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,.45);
-      z-index: 100; display: flex; flex-direction: column; justify-content: flex-end;
+      position: fixed; inset: 0; background: rgba(20,18,15,.5);
+      z-index: 100; display: flex; flex-direction: column;
+      justify-content: flex-end;
     }
     .modal-overlay.hidden { display: none !important; }
 
     .modal {
-      background: var(--bg); border-radius: 24px 24px 0 0;
+      background: var(--surface); border-radius: 20px 20px 0 0;
       max-height: 92dvh; display: flex; flex-direction: column;
       padding-bottom: var(--sb);
+      box-shadow: 0 -4px 32px rgba(0,0,0,.12);
     }
     .modal.hidden { display: none !important; }
 
     .modal-handle {
-      width: 36px; height: 4px; background: var(--border);
+      width: 32px; height: 3px; background: var(--border);
       border-radius: 2px; margin: 10px auto 0; flex-shrink: 0;
     }
     .modal-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+      padding: 13px 20px; border-bottom: 1px solid var(--border-2); flex-shrink: 0;
     }
-    .modal-title { font-size: 17px; font-weight: 700; color: var(--ink); }
+    .modal-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 16px; font-weight: 700; color: var(--ink);
+    }
     .modal-cancel {
-      font-size: 15px; color: var(--muted); background: none;
-      border: none; cursor: pointer; font-family: inherit;
+      font-size: 14px; font-weight: 500; color: var(--ink-2);
+      background: none; border: none; padding: 2px 0;
     }
-    .modal-cancel:active { opacity: .7; }
+    .modal-cancel:active { opacity: .6; }
     .modal-body { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; }
 
-    /* ── Detail modal ────────────────────────────────────────────────────────── */
-    .detail-header { padding: 12px 20px 0; flex-shrink: 0; }
-    .detail-recipe-name { font-size: 22px; font-weight: 700; color: var(--ink); margin-bottom: 14px; letter-spacing: -.3px; }
+    /* ── Detail modal ──────────────────────────────────────────────────────── */
+    .detail-header { padding: 16px 20px 0; flex-shrink: 0; }
+    .detail-recipe-name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 22px; font-weight: 700; font-style: italic;
+      color: var(--ink); margin-bottom: 14px; letter-spacing: -.2px;
+      line-height: 1.25;
+    }
     .tab-bar {
-      display: flex; background: var(--light); border-radius: 12px;
+      display: flex; background: var(--surface-2); border-radius: 10px;
       padding: 3px; gap: 3px; margin-bottom: 12px;
     }
     .tab-btn {
-      flex: 1; padding: 8px; border-radius: 10px; border: none;
-      background: none; font-family: inherit; font-size: 14px;
-      color: var(--muted); cursor: pointer;
+      flex: 1; padding: 7px; border-radius: 8px; border: none;
+      background: none; font-size: 13px; font-weight: 500;
+      color: var(--ink-3);
     }
     .tab-btn.active {
-      background: var(--white); color: var(--ink); font-weight: 600;
-      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+      background: var(--surface); color: var(--ink); font-weight: 600;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
     }
     .detail-body { padding: 0 20px; }
     .ing-row {
       display: flex; justify-content: space-between; align-items: baseline;
-      padding: 12px 0; border-bottom: 1px solid var(--border);
+      padding: 11px 0; border-bottom: 1px solid var(--border-2);
     }
     .ing-row:last-child { border-bottom: none; }
-    .ing-name { font-size: 17px; color: var(--ink); }
-    .ing-qty  { font-size: 14px; color: var(--muted); font-style: italic; }
-    .step-row { display: flex; gap: 14px; margin: 10px 0; }
-    .step-num { font-size: 22px; color: var(--gold); font-weight: 700; font-style: italic; width: 26px; flex-shrink: 0; line-height: 1.27; }
-    .step-text { flex: 1; font-size: 16px; line-height: 1.6; color: #3A2E1E; padding-top: 2px; }
-
-    /* ── Picker modal ────────────────────────────────────────────────────────── */
-    .picker-search { padding: 10px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .search-input {
-      width: 100%; padding: 10px 14px; border-radius: 12px;
-      border: 1.5px solid var(--border); background: var(--white);
-      font-family: inherit; font-size: 15px; color: var(--ink); outline: none;
+    .ing-name { font-size: 15px; color: var(--ink); }
+    .ing-qty  { font-size: 13px; color: var(--ink-3); font-style: italic; margin-left: 12px; }
+    .step-row { display: flex; gap: 13px; margin: 9px 0; }
+    .step-num {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 20px; color: var(--green); font-weight: 700; font-style: italic;
+      width: 24px; flex-shrink: 0; line-height: 1.3;
     }
-    .search-input:focus { border-color: var(--gold); }
+    .step-text {
+      flex: 1; font-size: 15px; line-height: 1.65; color: var(--ink-2);
+      padding-top: 2px;
+    }
+
+    /* ── Picker modal ──────────────────────────────────────────────────────── */
+    .picker-search {
+      padding: 10px 16px; border-bottom: 1px solid var(--border-2); flex-shrink: 0;
+    }
+    .search-input {
+      width: 100%; padding: 9px 13px; border-radius: var(--r);
+      border: 1px solid var(--border); background: var(--surface-2);
+      font-size: 14px; color: var(--ink); outline: none;
+    }
+    .search-input:focus { border-color: var(--green); background: var(--surface); }
+
     .picker-row {
       display: flex; align-items: center; gap: 12px;
-      padding: 12px 20px; border-bottom: 1px solid var(--border);
-      background: var(--white); cursor: pointer;
+      padding: 12px 20px; border-bottom: 1px solid var(--border-2);
+      background: var(--surface);
     }
-    .picker-row:active { background: rgba(196,168,130,.1); }
+    .picker-row:active { background: var(--green-pale); }
 
-    /* ── Create modal ────────────────────────────────────────────────────────── */
-    .progress-bar-row { display: flex; gap: 6px; padding: 12px 20px 4px; flex-shrink: 0; }
-    .progress-seg { flex: 1; height: 3px; border-radius: 2px; background: var(--border); }
-    .progress-seg.active { background: var(--dark); }
+    /* ── Create recipe form ────────────────────────────────────────────────── */
+    .progress-bar-row {
+      display: flex; gap: 5px; padding: 10px 20px 4px; flex-shrink: 0;
+    }
+    .progress-seg {
+      flex: 1; height: 2px; border-radius: 2px; background: var(--border);
+    }
+    .progress-seg.active { background: var(--green); }
+
     .form-body { padding: 16px 20px; }
-    .form-label { font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: block; }
+    .form-label {
+      display: block; font-size: 10px; font-weight: 600;
+      letter-spacing: 1.2px; text-transform: uppercase;
+      color: var(--ink-3); margin-bottom: 7px;
+    }
     .form-input {
-      width: 100%; padding: 12px 14px; border-radius: 12px;
-      border: 1.5px solid var(--border); background: var(--white);
-      font-family: inherit; font-size: 16px; color: var(--ink); outline: none;
+      width: 100%; padding: 11px 13px; border-radius: var(--r);
+      border: 1px solid var(--border); background: var(--surface);
+      font-size: 15px; color: var(--ink); outline: none;
     }
-    .form-input:focus { border-color: var(--gold); }
-    .form-input.error { border-color: #c0392b; }
+    .form-input:focus { border-color: var(--green); }
+    .form-input.error { border-color: var(--red); }
+
     .form-input-sm {
-      padding: 9px 10px; border-radius: 10px;
-      border: 1.5px solid var(--border); background: var(--white);
-      font-family: inherit; font-size: 14px; color: var(--ink); outline: none;
+      padding: 8px 9px; border-radius: var(--r-sm);
+      border: 1px solid var(--border); background: var(--surface);
+      font-size: 13px; color: var(--ink); outline: none;
     }
-    .form-input-sm:focus { border-color: var(--gold); }
-    .error-msg { font-size: 13px; color: #c0392b; margin: 6px 0 4px; }
+    .form-input-sm:focus { border-color: var(--green); }
+
+    .error-msg { font-size: 12px; color: var(--red); margin: 5px 0 4px; }
+
     .col-labels {
-      display: flex; gap: 6px; margin-bottom: 8px;
-      font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted);
+      display: flex; gap: 6px; margin-bottom: 7px;
+      font-size: 9px; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--ink-3);
     }
-    .ing-form-row { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; }
+    .ing-form-row { display: flex; gap: 6px; align-items: center; margin-bottom: 7px; }
+
     .rm-btn {
-      width: 32px; font-size: 22px; color: var(--gold); background: none;
-      border: none; cursor: pointer; font-weight: 300; line-height: 1;
-      font-family: inherit; flex-shrink: 0;
+      width: 28px; height: 28px; border-radius: var(--r-sm);
+      background: var(--red-pale); border: none;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--red); flex-shrink: 0;
     }
-    .rm-btn:disabled { opacity: .25; cursor: default; }
+    .rm-btn:disabled { opacity: .25; background: var(--surface-2); color: var(--ink-3); cursor: default; }
+    .rm-btn:not(:disabled):active { opacity: .7; }
+
     .add-row-btn {
-      width: 100%; padding: 12px; border-radius: 10px;
-      border: 1.5px dashed var(--border); background: none;
-      font-family: inherit; font-size: 14px; color: var(--muted); cursor: pointer; margin-top: 6px;
+      width: 100%; padding: 10px; border-radius: var(--r-sm);
+      border: 1px dashed var(--border); background: none;
+      font-size: 13px; font-weight: 500; color: var(--ink-3); margin-top: 5px;
     }
     .add-row-btn:active { opacity: .7; }
-    .dir-form-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+
+    .dir-form-row { display: flex; gap: 11px; align-items: flex-start; margin-bottom: 10px; }
     .dir-num-label {
-      font-size: 22px; color: var(--gold); font-weight: 700; font-style: italic;
-      width: 26px; flex-shrink: 0; padding-top: 10px; line-height: 1;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 20px; color: var(--green); font-weight: 700; font-style: italic;
+      width: 24px; flex-shrink: 0; padding-top: 9px; line-height: 1;
     }
     .dir-textarea {
-      flex: 1; padding: 10px 12px; border-radius: 12px;
-      border: 1.5px solid var(--border); background: var(--white);
-      font-family: inherit; font-size: 15px; color: var(--ink); outline: none;
-      resize: vertical; min-height: 70px; line-height: 1.5;
+      flex: 1; padding: 9px 11px; border-radius: var(--r);
+      border: 1px solid var(--border); background: var(--surface);
+      font-size: 14px; color: var(--ink); outline: none;
+      resize: vertical; min-height: 68px; line-height: 1.55;
     }
-    .dir-textarea:focus { border-color: var(--gold); }
+    .dir-textarea:focus { border-color: var(--green); }
+
     .modal-footer {
-      display: flex; gap: 8px; padding: 12px 20px;
-      border-top: 1px solid var(--border); align-items: center; flex-shrink: 0;
+      display: flex; gap: 8px; padding: 11px 20px;
+      border-top: 1px solid var(--border-2); align-items: center; flex-shrink: 0;
     }
     .back-btn {
-      padding: 8px 14px; border-radius: 20px; border: none;
-      background: none; font-family: inherit; font-size: 14px;
-      color: var(--muted); cursor: pointer;
+      padding: 8px 13px; border-radius: 20px; border: none;
+      background: none; font-size: 13px; font-weight: 500; color: var(--ink-2);
     }
+    .back-btn:active { opacity: .6; }
     .next-btn {
-      padding: 8px 16px; border-radius: 20px; background: var(--dark); border: none;
-      font-family: inherit; font-size: 14px; color: #fff; font-weight: 600;
-      cursor: pointer; margin-left: auto;
+      padding: 8px 16px; border-radius: 20px; background: var(--green); border: none;
+      font-size: 13px; font-weight: 600; color: #fff; margin-left: auto;
     }
+    .next-btn:active { background: var(--green-dk); }
     .save-btn {
-      padding: 8px 16px; border-radius: 20px; background: #4a7c59; border: none;
-      font-family: inherit; font-size: 14px; color: #fff; font-weight: 600;
-      cursor: pointer; margin-left: auto;
+      padding: 8px 16px; border-radius: 20px;
+      background: var(--green); border: none;
+      font-size: 13px; font-weight: 600; color: #fff; margin-left: auto;
+    }
+    .save-btn:active { background: var(--green-dk); }
+
+    /* ── Hover states (desktop) ────────────────────────────────────────────── */
+    @media (hover: hover) {
+      .slot-card:not(.filled):hover { border-color: var(--green-mid); }
+      .recipe-row:hover  { background: var(--green-pale); }
+      .picker-row:hover  { background: var(--green-pale); }
+      .shopping-row:hover { opacity: .85; }
+      .day-chip:not(.active):hover { border-color: var(--green-mid); }
+      .nav-btn:hover .nav-icon,
+      .nav-btn:hover .nav-label { color: var(--green-dk); }
     }
 
-    /* ── Utilities ───────────────────────────────────────────────────────────── */
+    /* ── Utilities ─────────────────────────────────────────────────────────── */
     .hidden { display: none !important; }
 
-    /* ── Print styles ────────────────────────────────────────────────────────── */
+    /* ── Print ─────────────────────────────────────────────────────────────── */
     #print-book { display: none; }
 
     @media print {
       #app, .modal-overlay { display: none !important; }
       #print-book { display: block !important; }
-
-      @page { margin: 2cm; }
+      @page { margin: 2.2cm 2.5cm; }
 
       .print-cover {
         display: flex; flex-direction: column;
         align-items: center; justify-content: center;
-        min-height: 90vh; text-align: center;
+        min-height: 85vh; text-align: center;
         page-break-after: always; break-after: page;
-        font-family: Georgia, serif;
+        font-family: 'Playfair Display', Georgia, serif;
       }
-      .print-cover-title { font-size: 52px; font-weight: 700; color: #1C1610; margin-bottom: 12px; }
-      .print-cover-rule  { width: 80px; height: 3px; background: #C4A882; margin: 0 auto 20px; }
-      .print-cover-sub   { font-size: 18px; color: #9A8060; font-style: italic; }
+      .print-cover-eyebrow {
+        font-family: 'Inter', Arial, sans-serif;
+        font-size: 10px; font-weight: 600; letter-spacing: 2px;
+        text-transform: uppercase; color: #7A7A6E;
+        margin-bottom: 24px;
+      }
+      .print-cover-title {
+        font-size: 52px; font-weight: 700; color: #18181A;
+        line-height: 1.1; margin-bottom: 10px;
+      }
+      .print-cover-rule {
+        width: 48px; height: 3px; background: #3D6B4F;
+        margin: 18px auto 18px;
+      }
+      .print-cover-count {
+        font-style: italic; font-size: 17px; color: #7A7A6E;
+      }
 
       .print-recipe {
         page-break-after: always; break-after: page;
-        font-family: Georgia, serif; padding-top: 8px;
+        font-family: 'Playfair Display', Georgia, serif;
+        padding-top: 8px;
       }
       .print-recipe:last-child { page-break-after: avoid; break-after: avoid; }
 
       .print-recipe-title {
-        font-size: 34px; font-weight: 700; color: #1C1610;
-        border-bottom: 2.5px solid #C4A882;
-        padding-bottom: 12px; margin-bottom: 28px;
+        font-size: 36px; font-weight: 700; color: #18181A;
+        padding-bottom: 14px; margin-bottom: 28px;
+        border-bottom: 2px solid #3D6B4F;
+        line-height: 1.1;
       }
-
       .print-columns {
-        display: grid; grid-template-columns: 1fr 1.6fr; gap: 48px;
+        display: grid; grid-template-columns: 1fr 1.7fr; gap: 52px;
       }
-
       .print-section-title {
-        font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase;
-        color: #9A8060; margin-bottom: 14px;
+        font-family: 'Inter', Arial, sans-serif;
+        font-size: 9px; font-weight: 600; letter-spacing: 1.8px;
+        text-transform: uppercase; color: #7A7A6E; margin-bottom: 14px;
       }
-
       .print-ing {
         display: flex; justify-content: space-between;
-        padding: 8px 0; border-bottom: 1px solid #E5DDD0; font-size: 14px;
-        break-inside: avoid;
+        padding: 8px 0; border-bottom: 1px solid #EDECE7;
+        font-size: 13.5px; break-inside: avoid;
       }
       .print-ing:last-child { border-bottom: none; }
-      .print-ing-name { color: #1C1610; }
-      .print-ing-qty  { color: #9A8060; font-style: italic; }
-
+      .print-ing-name { color: #18181A; }
+      .print-ing-qty  { color: #7A7A6E; font-style: italic; }
       .print-step { display: flex; gap: 14px; margin-bottom: 16px; break-inside: avoid; }
-      .print-step-num  { font-size: 24px; color: #C4A882; font-weight: 700; font-style: italic; width: 28px; flex-shrink: 0; line-height: 1.2; }
-      .print-step-text { font-size: 14px; line-height: 1.75; color: #3A2E1E; padding-top: 4px; }
+      .print-step-num {
+        font-size: 26px; color: #3D6B4F; font-weight: 700; font-style: italic;
+        width: 28px; flex-shrink: 0; line-height: 1.15;
+      }
+      .print-step-text {
+        font-family: 'Inter', Arial, sans-serif;
+        font-size: 13.5px; line-height: 1.75; color: #2A2825; padding-top: 5px;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- ── App shell ─────────────────────────────────────────────────────────── -->
   <div id="app">
     <main>
 
-      <!-- Plan screen -->
+      <!-- ── Plan ─────────────────────────────────────────────────────────── -->
       <div id="screen-plan" class="screen">
         <div class="screen-header">
           <div>
+            <div class="wordmark">mise</div>
             <div class="eyebrow">This week</div>
             <div class="screen-title">Meal Plan</div>
             <div class="screen-sub" id="plan-count">0 meals planned</div>
@@ -483,20 +645,22 @@
         <div id="plan-slots"></div>
       </div>
 
-      <!-- Recipes screen -->
+      <!-- ── Recipes ───────────────────────────────────────────────────────── -->
       <div id="screen-recipes" class="screen hidden">
         <div class="screen-header">
           <div>
             <div class="eyebrow">Library</div>
             <div class="screen-title">Recipes</div>
           </div>
-          <button class="icon-btn" id="btn-new-recipe" title="Add recipe">+</button>
+          <button class="add-btn" id="btn-new-recipe" title="Add recipe" aria-label="Add recipe">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
         </div>
-        <div id="saved-banner" class="banner hidden">✓ Recipe saved to your library!</div>
+        <div id="saved-banner" class="banner hidden">Recipe saved to your library.</div>
         <div id="recipe-list" class="recipe-list"></div>
       </div>
 
-      <!-- Shopping screen -->
+      <!-- ── Shopping ─────────────────────────────────────────────────────── -->
       <div id="screen-shopping" class="screen hidden">
         <div class="screen-header">
           <div>
@@ -509,7 +673,7 @@
         <div id="shopping-list"></div>
       </div>
 
-      <!-- Book screen -->
+      <!-- ── Book ─────────────────────────────────────────────────────────── -->
       <div id="screen-book" class="screen hidden">
         <div class="screen-header">
           <div>
@@ -518,9 +682,18 @@
           </div>
         </div>
         <div class="book-actions">
-          <button class="book-btn primary" id="btn-print-book">🖨&nbsp; Print Book</button>
-          <button class="book-btn" id="btn-export-yaml">⬇&nbsp; Export YAML</button>
-          <button class="book-btn" id="btn-import-yaml">⬆&nbsp; Import YAML</button>
+          <button class="book-btn primary" id="btn-print-book">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Print Book
+          </button>
+          <button class="book-btn" id="btn-export-yaml">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export YAML
+          </button>
+          <button class="book-btn" id="btn-import-yaml">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import YAML
+          </button>
         </div>
         <input type="file" id="yaml-file-input" accept=".yaml,.yml" class="hidden">
         <div id="book-preview" class="book-preview"></div>
@@ -528,28 +701,28 @@
 
     </main>
 
-    <!-- Bottom nav -->
+    <!-- ── Bottom nav ───────────────────────────────────────────────────────── -->
     <nav id="bottom-nav">
       <button class="nav-btn active" data-tab="plan">
-        <span class="nav-icon">📅</span>
+        <svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         <span class="nav-label">Plan</span>
       </button>
       <button class="nav-btn" data-tab="recipes">
-        <span class="nav-icon">📖</span>
+        <svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         <span class="nav-label">Recipes</span>
       </button>
       <button class="nav-btn" data-tab="shopping">
-        <span class="nav-icon">🛒</span>
+        <svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
         <span class="nav-label">Shopping</span>
       </button>
       <button class="nav-btn" data-tab="book">
-        <span class="nav-icon">📚</span>
+        <svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
         <span class="nav-label">Book</span>
       </button>
     </nav>
   </div>
 
-  <!-- ── Modals ─────────────────────────────────────────────────────────────── -->
+  <!-- ── Modals ──────────────────────────────────────────────────────────────── -->
   <div id="modal-overlay" class="modal-overlay hidden">
 
     <!-- Recipe detail -->
@@ -558,8 +731,8 @@
       <div class="detail-header">
         <div id="detail-recipe-name" class="detail-recipe-name"></div>
         <div class="tab-bar">
-          <button class="tab-btn active" data-tab="ingredients">🧂 Ingredients</button>
-          <button class="tab-btn"        data-tab="directions">📋 Directions</button>
+          <button class="tab-btn active" data-tab="ingredients">Ingredients</button>
+          <button class="tab-btn"        data-tab="directions">Directions</button>
         </div>
       </div>
       <div class="modal-body detail-body" id="detail-body"></div>
@@ -571,7 +744,7 @@
       <div class="modal-header">
         <button class="modal-cancel" id="picker-cancel">Cancel</button>
         <span class="modal-title" id="picker-title">Choose a recipe</span>
-        <div style="width:60px"></div>
+        <div style="width:56px"></div>
       </div>
       <div class="picker-search">
         <input type="text" class="search-input" id="picker-search" placeholder="Search recipes…" autocomplete="off">
@@ -585,7 +758,7 @@
       <div class="modal-header">
         <button class="modal-cancel" id="create-cancel">Cancel</button>
         <span class="modal-title">New Recipe</span>
-        <div style="width:60px"></div>
+        <div style="width:56px"></div>
       </div>
       <div class="progress-bar-row" id="create-progress"></div>
       <div class="modal-body" id="create-body"></div>
@@ -594,7 +767,7 @@
 
   </div>
 
-  <!-- ── Print book (screen-hidden, print-visible) ──────────────────────────── -->
+  <!-- ── Print book ───────────────────────────────────────────────────────────── -->
   <div id="print-book"></div>
 
   <script>
@@ -640,15 +813,19 @@
     ];
 
     /* ── Utilities ────────────────────────────────────────────────────────────── */
-    const uid   = () => `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const fmtQ  = (q) => { const n = parseFloat(q)||0; if (!n) return ''; return Number.isInteger(n) ? String(n) : n.toFixed(1); };
-    const esc   = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    const $     = (id) => document.getElementById(id);
+    const uid  = () => `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const fmtQ = (q) => { const n=parseFloat(q)||0; if(!n) return ''; return Number.isInteger(n)?String(n):n.toFixed(1); };
+    const esc  = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const $    = (id) => document.getElementById(id);
+
+    const PLUS_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/></svg>`;
+    const MINUS_SVG = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+    const EYE_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+    const X_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
 
     /* ── State ────────────────────────────────────────────────────────────────── */
     const emptyPlan = () => DAYS_FULL.reduce((a,d) => { a[d]={m:null,i:null,s:null}; return a; }, {});
-
-    let S = { recipes: INITIAL_RECIPES.map(r => ({...r})), plan: emptyPlan(), checkedItems: {} };
+    let S = { recipes: INITIAL_RECIPES.map(r=>({...r})), plan: emptyPlan(), checkedItems:{} };
 
     function load() {
       try {
@@ -662,9 +839,8 @@
     }
     const save = () => { try { localStorage.setItem('mealplanner-v1', JSON.stringify(S)); } catch(_) {} };
 
-    /* ── Tab navigation ───────────────────────────────────────────────────────── */
+    /* ── Navigation ───────────────────────────────────────────────────────────── */
     let activeTab = 'plan';
-
     function switchTab(tab) {
       activeTab = tab;
       document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
@@ -673,57 +849,53 @@
       document.querySelector(`.nav-btn[data-tab="${tab}"]`).classList.add('active');
       renderTab(tab);
     }
-
     function renderTab(tab) {
-      if (tab === 'plan')     renderPlan();
-      if (tab === 'recipes')  renderRecipes();
-      if (tab === 'shopping') renderShopping();
-      if (tab === 'book')     renderBook();
+      if (tab==='plan')     renderPlan();
+      if (tab==='recipes')  renderRecipes();
+      if (tab==='shopping') renderShopping();
+      if (tab==='book')     renderBook();
     }
 
     /* ── Plan screen ──────────────────────────────────────────────────────────── */
     let activeDayIdx = 0;
 
     function renderPlan() {
-      const total = Object.values(S.plan).flatMap(d => Object.values(d)).filter(Boolean).length;
-      $('plan-count').textContent = `${total} meal${total !== 1 ? 's' : ''} planned`;
+      const total = Object.values(S.plan).flatMap(d=>Object.values(d)).filter(Boolean).length;
+      $('plan-count').textContent = `${total} meal${total!==1?'s':''} planned`;
       renderDayChips();
       renderSlots();
     }
 
     function renderDayChips() {
-      $('day-scroll').innerHTML = DAYS_SHORT.map((d, i) => {
-        const full    = DAYS_FULL[i];
-        const active  = i === activeDayIdx;
-        const weekend = i >= 5;
-        const hasAny  = Object.values(S.plan[full]).some(Boolean);
+      $('day-scroll').innerHTML = DAYS_SHORT.map((d,i) => {
+        const full=DAYS_FULL[i], active=i===activeDayIdx, weekend=i>=5;
+        const hasAny=Object.values(S.plan[full]).some(Boolean);
         return `<button class="day-chip${active?' active':''}${weekend&&!active?' weekend':''}" data-day="${i}">
           <span class="day-name">${d}</span>
           <span class="day-num">${i+1}</span>
-          ${hasAny ? '<span class="day-chip-dot"></span>' : ''}
+          ${hasAny?'<span class="day-chip-dot"></span>':''}
         </button>`;
       }).join('');
       $('day-label').textContent = DAYS_FULL[activeDayIdx];
       $('day-scroll').querySelectorAll('.day-chip').forEach(btn =>
-        btn.addEventListener('click', () => { activeDayIdx = +btn.dataset.day; renderPlan(); })
+        btn.addEventListener('click', ()=>{ activeDayIdx=+btn.dataset.day; renderPlan(); })
       );
     }
 
     function renderSlots() {
-      const day  = DAYS_FULL[activeDayIdx];
-      const plan = S.plan[day];
+      const day=DAYS_FULL[activeDayIdx], slots=S.plan[day];
       $('plan-slots').innerHTML = SLOTS.map(slot => {
-        const r = plan[slot.key];
+        const r=slots[slot.key];
         if (r) {
-          return `<div class="slot-card">
-            <div class="slot-icon filled">${slot.icon}</div>
+          return `<div class="slot-card filled">
+            <div class="slot-icon">${slot.icon}</div>
             <div class="slot-text">
               <div class="slot-label">${slot.label}</div>
               <div class="slot-name">${esc(r.name)}</div>
             </div>
             <div class="slot-actions">
-              <button class="slot-action-btn" data-action="detail" data-slot="${slot.key}" title="View">📋</button>
-              <button class="slot-action-btn remove" data-action="remove" data-slot="${slot.key}" title="Remove">×</button>
+              <button class="slot-btn" data-action="detail" data-slot="${slot.key}" title="View recipe">${EYE_SVG}</button>
+              <button class="slot-btn remove" data-action="remove" data-slot="${slot.key}" title="Remove">${X_SVG}</button>
             </div>
           </div>`;
         }
@@ -733,24 +905,24 @@
             <div class="slot-label">${slot.label}</div>
             <div class="slot-empty">Tap to add a recipe</div>
           </div>
-          <div class="slot-add">+</div>
+          <div class="slot-add">${PLUS_SVG}</div>
         </div>`;
       }).join('');
 
       $('plan-slots').querySelectorAll('[data-action="pick"]').forEach(el =>
-        el.addEventListener('click', () => openPicker(el.dataset.slot))
+        el.addEventListener('click', ()=>openPicker(el.dataset.slot))
       );
       $('plan-slots').querySelectorAll('[data-action="detail"]').forEach(btn =>
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', e => {
           e.stopPropagation();
-          const r = S.plan[DAYS_FULL[activeDayIdx]][btn.dataset.slot];
-          if (r) openDetail(r);
+          const r=S.plan[DAYS_FULL[activeDayIdx]][btn.dataset.slot];
+          if(r) openDetail(r);
         })
       );
       $('plan-slots').querySelectorAll('[data-action="remove"]').forEach(btn =>
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', e => {
           e.stopPropagation();
-          S.plan[DAYS_FULL[activeDayIdx]][btn.dataset.slot] = null;
+          S.plan[DAYS_FULL[activeDayIdx]][btn.dataset.slot]=null;
           save(); renderPlan();
         })
       );
@@ -758,105 +930,99 @@
 
     /* ── Recipes screen ───────────────────────────────────────────────────────── */
     function renderRecipes() {
-      const list = $('recipe-list');
-      if (S.recipes.length === 0) {
-        list.innerHTML = `<div class="empty-state">
+      const list=$('recipe-list');
+      if (!S.recipes.length) {
+        list.innerHTML=`<div class="empty-state">
           <div class="empty-icon">📖</div>
-          <div class="empty-text">No recipes yet.<br>Tap + to create one.</div>
+          <div class="empty-text">No recipes yet.<br>Tap + to add your first one.</div>
         </div>`;
         return;
       }
-      list.innerHTML = S.recipes.map(r => `
+      list.innerHTML = S.recipes.map(r=>`
         <div class="recipe-row" data-id="${esc(r.id)}">
-          <div class="recipe-icon">🍽️</div>
+          <div class="recipe-avatar">${esc(r.name.charAt(0).toUpperCase())}</div>
           <div class="recipe-text">
             <div class="recipe-name">${esc(r.name)}</div>
-            <div class="recipe-sub">${r.ingredients.length} ingredient${r.ingredients.length!==1?'s':''} · ${r.directions.length} step${r.directions.length!==1?'s':''}</div>
+            <div class="recipe-sub">${r.ingredients.length} ingredient${r.ingredients.length!==1?'s':''} &middot; ${r.directions.length} step${r.directions.length!==1?'s':''}</div>
           </div>
-          <button class="delete-btn" data-id="${esc(r.id)}" title="Delete">✕</button>
+          <button class="delete-btn" data-id="${esc(r.id)}" title="Delete">${X_SVG}</button>
         </div>
       `).join('');
 
-      list.querySelectorAll('.recipe-row').forEach(row =>
-        row.addEventListener('click', (e) => {
-          if (e.target.closest('.delete-btn')) return;
-          const r = S.recipes.find(x => x.id === row.dataset.id);
-          if (r) openDetail(r);
+      list.querySelectorAll('.recipe-row').forEach(row=>
+        row.addEventListener('click', e=>{
+          if(e.target.closest('.delete-btn')) return;
+          const r=S.recipes.find(x=>x.id===row.dataset.id);
+          if(r) openDetail(r);
         })
       );
-      list.querySelectorAll('.delete-btn').forEach(btn =>
-        btn.addEventListener('click', (e) => {
+      list.querySelectorAll('.delete-btn').forEach(btn=>
+        btn.addEventListener('click', e=>{
           e.stopPropagation();
-          if (!confirm('Delete this recipe? It will also be removed from your meal plan.')) return;
-          const id = btn.dataset.id;
-          S.recipes = S.recipes.filter(r => r.id !== id);
-          DAYS_FULL.forEach(d => SLOTS.forEach(s => {
-            if (S.plan[d][s.key]?.id === id) S.plan[d][s.key] = null;
-          }));
+          if(!confirm('Delete this recipe? It will also be removed from your meal plan.')) return;
+          const id=btn.dataset.id;
+          S.recipes=S.recipes.filter(r=>r.id!==id);
+          DAYS_FULL.forEach(d=>SLOTS.forEach(s=>{ if(S.plan[d][s.key]?.id===id) S.plan[d][s.key]=null; }));
           save(); renderRecipes();
         })
       );
     }
 
     function showSavedBanner() {
-      const b = $('saved-banner');
+      const b=$('saved-banner');
       b.classList.remove('hidden');
-      setTimeout(() => b.classList.add('hidden'), 2500);
+      setTimeout(()=>b.classList.add('hidden'), 2500);
     }
 
     /* ── Shopping screen ──────────────────────────────────────────────────────── */
     function buildShoppingList() {
-      const agg = {};
-      Object.values(S.plan).forEach(dp =>
-        Object.values(dp).forEach(r => {
-          if (!r) return;
-          r.ingredients.forEach(ing => {
-            const k = ing.name.toLowerCase();
-            if (!agg[k]) agg[k] = { name: ing.name, qty: 0, unit: ing.unit };
-            agg[k].qty += parseFloat(ing.qty) || 0;
+      const agg={};
+      Object.values(S.plan).forEach(dp=>
+        Object.values(dp).forEach(r=>{
+          if(!r) return;
+          r.ingredients.forEach(ing=>{
+            const k=ing.name.toLowerCase();
+            if(!agg[k]) agg[k]={name:ing.name,qty:0,unit:ing.unit};
+            agg[k].qty+=parseFloat(ing.qty)||0;
           });
         })
       );
-      return Object.values(agg).sort((a,b) => a.name.localeCompare(b.name));
+      return Object.values(agg).sort((a,b)=>a.name.localeCompare(b.name));
     }
 
     function renderShopping() {
-      const list      = buildShoppingList();
-      const remaining = list.filter(i => !S.checkedItems[i.name.toLowerCase()]).length;
-      const resetBtn  = $('btn-reset-shopping');
+      const list=buildShoppingList();
+      const rem=list.filter(i=>!S.checkedItems[i.name.toLowerCase()]).length;
+      const resetBtn=$('btn-reset-shopping');
 
-      if (list.length === 0) {
-        $('shopping-sub').textContent = '';
+      if (!list.length) {
+        $('shopping-sub').textContent='';
         resetBtn.classList.add('hidden');
-        $('shopping-list').innerHTML = `<div class="empty-state">
+        $('shopping-list').innerHTML=`<div class="empty-state">
           <div class="empty-icon">🧺</div>
-          <div class="empty-text">Your basket is empty.<br>Plan some meals first.</div>
+          <div class="empty-text">Your list is empty.<br>Plan some meals first.</div>
           <button class="go-btn" id="go-to-plan">Go to Plan →</button>
         </div>`;
-        $('go-to-plan').addEventListener('click', () => switchTab('plan'));
+        $('go-to-plan').addEventListener('click',()=>switchTab('plan'));
         return;
       }
 
-      $('shopping-sub').textContent = `${remaining} of ${list.length} remaining`;
+      $('shopping-sub').textContent=`${rem} of ${list.length} remaining`;
       resetBtn.classList.remove('hidden');
-
-      $('shopping-list').innerHTML = `<div class="shopping-list-wrap">` +
-        list.map(item => {
-          const k    = item.name.toLowerCase();
-          const done = !!S.checkedItems[k];
-          const qty  = item.qty;
-          const qs   = qty > 0 ? `${Number.isInteger(qty)?qty:qty.toFixed(1)} ${item.unit}`.trim() : '';
+      $('shopping-list').innerHTML=`<div class="shopping-list-wrap">`+
+        list.map(item=>{
+          const k=item.name.toLowerCase(), done=!!S.checkedItems[k];
+          const qty=item.qty, qs=qty>0?`${Number.isInteger(qty)?qty:qty.toFixed(1)} ${item.unit}`.trim():'';
           return `<div class="shopping-row${done?' done':''}" data-key="${esc(k)}">
             <div class="checkbox${done?' checked':''}"></div>
             <span class="shopping-name">${esc(item.name)}</span>
-            ${qs ? `<span class="shopping-qty">${esc(qs)}</span>` : ''}
+            ${qs?`<span class="shopping-qty">${esc(qs)}</span>`:''}
           </div>`;
-        }).join('') + `</div>`;
+        }).join('')+`</div>`;
 
-      $('shopping-list').querySelectorAll('.shopping-row').forEach(row =>
-        row.addEventListener('click', () => {
-          const k = row.dataset.key;
-          S.checkedItems[k] = !S.checkedItems[k];
+      $('shopping-list').querySelectorAll('.shopping-row').forEach(row=>
+        row.addEventListener('click',()=>{
+          S.checkedItems[row.dataset.key]=!S.checkedItems[row.dataset.key];
           save(); renderShopping();
         })
       );
@@ -864,27 +1030,27 @@
 
     /* ── Book screen ──────────────────────────────────────────────────────────── */
     function renderBook() {
-      const prev = $('book-preview');
-      if (S.recipes.length === 0) {
-        prev.innerHTML = `<div class="empty-state">
+      const prev=$('book-preview');
+      if (!S.recipes.length) {
+        prev.innerHTML=`<div class="empty-state">
           <div class="empty-icon">📚</div>
           <div class="empty-text">No recipes yet.<br>Add some in the Recipes tab.</div>
         </div>`;
         return;
       }
-      prev.innerHTML = S.recipes.map(r => `
+      prev.innerHTML=S.recipes.map(r=>`
         <div class="book-recipe-card">
           <div class="book-recipe-name">${esc(r.name)}</div>
           <div class="book-section-label">Ingredients</div>
-          ${r.ingredients.map(ing => {
-            const q = parseFloat(ing.qty)||0;
+          ${r.ingredients.map(ing=>{
+            const q=parseFloat(ing.qty)||0;
             return `<div class="book-ing-row">
               <span>${esc(ing.name)}</span>
-              <span class="book-ing-qty">${q ? esc(fmtQ(ing.qty)+' '+ing.unit) : '—'}</span>
+              <span class="book-ing-qty">${q?esc(fmtQ(ing.qty)+' '+ing.unit):'—'}</span>
             </div>`;
           }).join('')}
-          <div class="book-section-label" style="margin-top:14px">Directions</div>
-          ${r.directions.map((d,i) => `
+          <div class="book-section-label" style="margin-top:12px">Directions</div>
+          ${r.directions.map((d,i)=>`
             <div class="book-dir-row">
               <span class="book-dir-num">${i+1}</span>
               <span class="book-dir-text">${esc(d)}</span>
@@ -894,29 +1060,30 @@
     }
 
     function buildPrintBook() {
-      $('print-book').innerHTML =
+      $('print-book').innerHTML=
         `<div class="print-cover">
+          <div class="print-cover-eyebrow">A personal collection</div>
           <div class="print-cover-title">My Recipe Book</div>
           <div class="print-cover-rule"></div>
-          <div class="print-cover-sub">${S.recipes.length} recipe${S.recipes.length!==1?'s':''}</div>
-        </div>` +
-        S.recipes.map(r => `
+          <div class="print-cover-count">${S.recipes.length} recipe${S.recipes.length!==1?'s':''}</div>
+        </div>`+
+        S.recipes.map(r=>`
           <div class="print-recipe">
             <div class="print-recipe-title">${esc(r.name)}</div>
             <div class="print-columns">
               <div>
                 <div class="print-section-title">Ingredients</div>
-                ${r.ingredients.map(ing => {
-                  const q = parseFloat(ing.qty)||0;
+                ${r.ingredients.map(ing=>{
+                  const q=parseFloat(ing.qty)||0;
                   return `<div class="print-ing">
                     <span class="print-ing-name">${esc(ing.name)}</span>
-                    ${q ? `<span class="print-ing-qty">${esc(fmtQ(ing.qty)+' '+ing.unit)}</span>` : ''}
+                    ${q?`<span class="print-ing-qty">${esc(fmtQ(ing.qty)+' '+ing.unit)}</span>`:''}
                   </div>`;
                 }).join('')}
               </div>
               <div>
                 <div class="print-section-title">Directions</div>
-                ${r.directions.map((d,i) => `
+                ${r.directions.map((d,i)=>`
                   <div class="print-step">
                     <span class="print-step-num">${i+1}</span>
                     <span class="print-step-text">${esc(d)}</span>
@@ -927,270 +1094,247 @@
         ).join('');
     }
 
-    /* ── YAML export / import ─────────────────────────────────────────────────── */
+    /* ── YAML ─────────────────────────────────────────────────────────────────── */
     function yamlStr(s) {
-      s = String(s);
-      if (!s) return '""';
-      if (/[:#\[\]{}|>&*!,'"?@`]/.test(s) || /^\s/.test(s) || /\s$/.test(s) || s.includes('\n'))
-        return '"' + s.replace(/\\/g,'\\\\').replace(/"/g,'\\"') + '"';
+      s=String(s); if(!s) return '""';
+      if(/[:#\[\]{}|>&*!,'"?@`]/.test(s)||/^\s/.test(s)||/\s$/.test(s)||s.includes('\n'))
+        return '"'+s.replace(/\\/g,'\\\\').replace(/"/g,'\\"')+'"';
       return s;
     }
-
     function exportYaml(recipes) {
-      let out = 'recipes:\n';
-      for (const r of recipes) {
-        out += `  - name: ${yamlStr(r.name)}\n    ingredients:\n`;
-        for (const ing of r.ingredients) {
-          out += `      - name: ${yamlStr(ing.name)}\n`;
-          if (ing.qty)  out += `        qty: "${ing.qty}"\n`;
-          if (ing.unit) out += `        unit: ${yamlStr(ing.unit)}\n`;
+      let out='recipes:\n';
+      for(const r of recipes){
+        out+=`  - name: ${yamlStr(r.name)}\n    ingredients:\n`;
+        for(const ing of r.ingredients){
+          out+=`      - name: ${yamlStr(ing.name)}\n`;
+          if(ing.qty)  out+=`        qty: "${ing.qty}"\n`;
+          if(ing.unit) out+=`        unit: ${yamlStr(ing.unit)}\n`;
         }
-        out += `    directions:\n`;
-        for (const d of r.directions) out += `      - ${yamlStr(d)}\n`;
+        out+=`    directions:\n`;
+        for(const d of r.directions) out+=`      - ${yamlStr(d)}\n`;
       }
       return out;
     }
-
     function importYaml(text) {
-      const unq = s => s.trim().replace(/^"(.*)"$/, (_,m) => m.replace(/\\"/g,'"').replace(/\\\\/g,'\\'));
-      const recipes = [];
-      let cur = null, section = null, curIng = null;
-
-      for (const raw of text.split('\n')) {
-        const indent = raw.match(/^(\s*)/)[1].length;
-        const line   = raw.trim();
-        if (!line || line.startsWith('#') || line === 'recipes:') continue;
-
-        if (indent === 2 && line.startsWith('- name:')) {
-          cur = { id: uid(), name: unq(line.slice(7)), ingredients: [], directions: [] };
-          recipes.push(cur); section = null; curIng = null;
-        } else if (!cur) {
-          continue;
-        } else if (indent === 4 && line === 'ingredients:') {
-          section = 'ingredients';
-        } else if (indent === 4 && line === 'directions:') {
-          section = 'directions';
-        } else if (section === 'ingredients' && indent === 6 && line.startsWith('- name:')) {
-          curIng = { name: unq(line.slice(7)), qty: '', unit: '' };
-          cur.ingredients.push(curIng);
-        } else if (section === 'ingredients' && indent === 8 && curIng) {
-          if (line.startsWith('qty:'))  curIng.qty  = unq(line.slice(4));
-          if (line.startsWith('unit:')) curIng.unit = unq(line.slice(5));
-        } else if (section === 'directions' && indent === 6 && line.startsWith('- ')) {
+      const unq=s=>s.trim().replace(/^"(.*)"$/,(_,m)=>m.replace(/\\"/g,'"').replace(/\\\\/g,'\\'));
+      const recipes=[]; let cur=null,section=null,curIng=null;
+      for(const raw of text.split('\n')){
+        const indent=raw.match(/^(\s*)/)[1].length, line=raw.trim();
+        if(!line||line.startsWith('#')||line==='recipes:') continue;
+        if(indent===2&&line.startsWith('- name:')){
+          cur={id:uid(),name:unq(line.slice(7)),ingredients:[],directions:[]};
+          recipes.push(cur); section=null; curIng=null;
+        } else if(!cur){ continue;
+        } else if(indent===4&&line==='ingredients:'){ section='ingredients';
+        } else if(indent===4&&line==='directions:'){  section='directions';
+        } else if(section==='ingredients'&&indent===6&&line.startsWith('- name:')){
+          curIng={name:unq(line.slice(7)),qty:'',unit:''}; cur.ingredients.push(curIng);
+        } else if(section==='ingredients'&&indent===8&&curIng){
+          if(line.startsWith('qty:'))  curIng.qty =unq(line.slice(4));
+          if(line.startsWith('unit:')) curIng.unit=unq(line.slice(5));
+        } else if(section==='directions'&&indent===6&&line.startsWith('- ')){
           cur.directions.push(unq(line.slice(2)));
         }
       }
       return recipes;
     }
-
     function downloadYaml() {
-      const blob = new Blob([exportYaml(S.recipes)], { type: 'text/yaml' });
-      const url  = URL.createObjectURL(blob);
-      const a    = Object.assign(document.createElement('a'), { href: url, download: 'recipes.yaml' });
-      a.click();
+      const blob=new Blob([exportYaml(S.recipes)],{type:'text/yaml'});
+      const url=URL.createObjectURL(blob);
+      Object.assign(document.createElement('a'),{href:url,download:'recipes.yaml'}).click();
       URL.revokeObjectURL(url);
     }
 
     /* ── Detail modal ─────────────────────────────────────────────────────────── */
-    let detailActiveTab = 'ingredients';
-
+    let detailTab='ingredients';
     function openDetail(recipe) {
-      detailActiveTab = 'ingredients';
-      $('detail-recipe-name').textContent = recipe.name;
+      detailTab='ingredients';
+      $('detail-recipe-name').textContent=recipe.name;
       renderDetailBody(recipe);
-      document.querySelectorAll('#modal-detail .tab-btn').forEach(b => {
-        b.classList.toggle('active', b.dataset.tab === 'ingredients');
-        b.onclick = () => {
-          detailActiveTab = b.dataset.tab;
-          document.querySelectorAll('#modal-detail .tab-btn').forEach(x => x.classList.toggle('active', x === b));
+      document.querySelectorAll('#modal-detail .tab-btn').forEach(b=>{
+        b.classList.toggle('active',b.dataset.tab==='ingredients');
+        b.onclick=()=>{
+          detailTab=b.dataset.tab;
+          document.querySelectorAll('#modal-detail .tab-btn').forEach(x=>x.classList.toggle('active',x===b));
           renderDetailBody(recipe);
         };
       });
       showModal('modal-detail');
     }
-
     function renderDetailBody(recipe) {
-      if (detailActiveTab === 'ingredients') {
-        $('detail-body').innerHTML =
-          recipe.ingredients.map(ing => {
-            const q = parseFloat(ing.qty)||0;
-            return `<div class="ing-row">
-              <span class="ing-name">${esc(ing.name)}</span>
-              <span class="ing-qty">${q ? esc(fmtQ(ing.qty)+' '+ing.unit) : '—'}</span>
-            </div>`;
-          }).join('') + '<div style="height:20px"></div>';
+      if(detailTab==='ingredients'){
+        $('detail-body').innerHTML=recipe.ingredients.map(ing=>{
+          const q=parseFloat(ing.qty)||0;
+          return `<div class="ing-row">
+            <span class="ing-name">${esc(ing.name)}</span>
+            <span class="ing-qty">${q?esc(fmtQ(ing.qty)+' '+ing.unit):'—'}</span>
+          </div>`;
+        }).join('')+'<div style="height:20px"></div>';
       } else {
-        $('detail-body').innerHTML =
-          recipe.directions.map((step,i) => `
-            <div class="step-row">
-              <span class="step-num">${i+1}</span>
-              <span class="step-text">${esc(step)}</span>
-            </div>`
-          ).join('') + '<div style="height:20px"></div>';
+        $('detail-body').innerHTML=recipe.directions.map((step,i)=>`
+          <div class="step-row">
+            <span class="step-num">${i+1}</span>
+            <span class="step-text">${esc(step)}</span>
+          </div>`
+        ).join('')+'<div style="height:20px"></div>';
       }
     }
 
     /* ── Picker modal ─────────────────────────────────────────────────────────── */
-    let pickerSlot = null;
-
+    let pickerSlot=null;
     function openPicker(slotKey) {
-      pickerSlot = slotKey;
-      const slot = SLOTS.find(s => s.key === slotKey);
-      $('picker-title').textContent = `Choose ${slot?.label || 'meal'}`;
-      $('picker-search').value = '';
+      pickerSlot=slotKey;
+      const slot=SLOTS.find(s=>s.key===slotKey);
+      $('picker-title').textContent=`Choose ${slot?.label||'meal'}`;
+      $('picker-search').value='';
       renderPickerList('');
-      $('picker-search').oninput = e => renderPickerList(e.target.value);
+      $('picker-search').oninput=e=>renderPickerList(e.target.value);
       showModal('modal-picker');
-      setTimeout(() => $('picker-search').focus(), 100);
+      setTimeout(()=>$('picker-search').focus(),100);
     }
-
     function renderPickerList(query) {
-      const q        = query.toLowerCase();
-      const filtered = S.recipes.filter(r => r.name.toLowerCase().includes(q));
-      if (filtered.length === 0) {
-        $('picker-list').innerHTML = `<div class="empty-state" style="padding:40px 20px"><div class="empty-text">No recipes match.</div></div>`;
+      const q=query.toLowerCase();
+      const filtered=S.recipes.filter(r=>r.name.toLowerCase().includes(q));
+      if(!filtered.length){
+        $('picker-list').innerHTML=`<div class="empty-state" style="padding:40px 20px"><div class="empty-text">No recipes match.</div></div>`;
         return;
       }
-      $('picker-list').innerHTML = filtered.map(r => `
+      $('picker-list').innerHTML=filtered.map(r=>`
         <div class="picker-row" data-id="${esc(r.id)}">
-          <div class="recipe-icon">🍽️</div>
+          <div class="recipe-avatar">${esc(r.name.charAt(0).toUpperCase())}</div>
           <div class="recipe-text">
             <div class="recipe-name">${esc(r.name)}</div>
             <div class="recipe-sub">${r.ingredients.length} ingredient${r.ingredients.length!==1?'s':''}</div>
           </div>
         </div>
       `).join('');
-      $('picker-list').querySelectorAll('.picker-row').forEach(row =>
-        row.addEventListener('click', () => {
-          const r = S.recipes.find(x => x.id === row.dataset.id);
-          if (!r || !pickerSlot) return;
-          S.plan[DAYS_FULL[activeDayIdx]][pickerSlot] = r;
+      $('picker-list').querySelectorAll('.picker-row').forEach(row=>
+        row.addEventListener('click',()=>{
+          const r=S.recipes.find(x=>x.id===row.dataset.id);
+          if(!r||!pickerSlot) return;
+          S.plan[DAYS_FULL[activeDayIdx]][pickerSlot]=r;
           save(); closeModal(); renderPlan();
         })
       );
     }
 
     /* ── Create recipe modal ──────────────────────────────────────────────────── */
-    const STEPS = ['name','ingredients','directions'];
-    let cStep = 'name', cName = '', cIngs = [], cDirs = [], cErr = {};
-
-    const blankIng = () => ({ id: uid(), name: '', qty: '', unit: '' });
-    const blankDir = () => ({ id: uid(), text: '' });
+    const STEPS=['name','ingredients','directions'];
+    let cStep='name', cName='', cIngs=[], cDirs=[], cErr={};
+    const blankIng=()=>({id:uid(),name:'',qty:'',unit:''});
+    const blankDir=()=>({id:uid(),text:''});
 
     function openCreate() {
-      cStep = 'name'; cName = ''; cIngs = [blankIng()]; cDirs = [blankDir()]; cErr = {};
-      renderCreate();
-      showModal('modal-create');
+      cStep='name'; cName=''; cIngs=[blankIng()]; cDirs=[blankDir()]; cErr={};
+      renderCreate(); showModal('modal-create');
     }
 
     function renderCreate() {
-      const si = STEPS.indexOf(cStep);
-      $('create-progress').innerHTML = STEPS.map((_,i) =>
+      const si=STEPS.indexOf(cStep);
+      $('create-progress').innerHTML=STEPS.map((_,i)=>
         `<div class="progress-seg${si>=i?' active':''}"></div>`
       ).join('');
 
-      if (cStep === 'name') {
-        $('create-body').innerHTML = `<div class="form-body">
+      if(cStep==='name'){
+        $('create-body').innerHTML=`<div class="form-body">
           <label class="form-label">Recipe Name</label>
           <input id="c-name" class="form-input${cErr.name?' error':''}" type="text" value="${esc(cName)}" placeholder="e.g. Mushroom Risotto" autocomplete="off">
-          ${cErr.name ? '<div class="error-msg">Please enter a name.</div>' : ''}
+          ${cErr.name?'<div class="error-msg">Please enter a name.</div>':''}
         </div>`;
-        $('create-footer').innerHTML = `<div style="flex:1"></div><button class="next-btn" id="c-next">Next →</button>`;
-        const inp = $('c-name');
-        inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length);
-        inp.addEventListener('input', e => { cName = e.target.value; cErr = {}; });
-        inp.addEventListener('keydown', e => { if (e.key === 'Enter') $('c-next').click(); });
-        $('c-next').onclick = () => {
-          if (!cName.trim()) { cErr = {name:true}; renderCreate(); return; }
-          cStep = 'ingredients'; cErr = {}; renderCreate();
+        $('create-footer').innerHTML=`<div style="flex:1"></div><button class="next-btn" id="c-next">Continue →</button>`;
+        const inp=$('c-name');
+        inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length);
+        inp.addEventListener('input',e=>{cName=e.target.value; cErr={};});
+        inp.addEventListener('keydown',e=>{if(e.key==='Enter') $('c-next').click();});
+        $('c-next').onclick=()=>{
+          if(!cName.trim()){cErr={name:true}; renderCreate(); return;}
+          cStep='ingredients'; cErr={}; renderCreate();
         };
 
-      } else if (cStep === 'ingredients') {
-        $('create-body').innerHTML = `<div class="form-body">
-          ${cErr.ings ? '<div class="error-msg">Add at least one ingredient.</div>' : ''}
+      } else if(cStep==='ingredients'){
+        $('create-body').innerHTML=`<div class="form-body">
+          ${cErr.ings?'<div class="error-msg">Add at least one ingredient.</div>':''}
           <div class="col-labels">
             <span style="flex:1">Ingredient</span>
             <span style="width:64px">Qty</span>
             <span style="width:72px">Unit</span>
-            <span style="width:32px"></span>
+            <span style="width:28px"></span>
           </div>
           <div id="ing-rows">${cIngs.map(ingRow).join('')}</div>
           <button class="add-row-btn" id="c-add-ing">+ Add ingredient</button>
         </div>`;
-        $('create-footer').innerHTML = `<button class="back-btn" id="c-back">← Back</button><button class="next-btn" id="c-next">Next →</button>`;
+        $('create-footer').innerHTML=`<button class="back-btn" id="c-back">← Back</button><button class="next-btn" id="c-next">Continue →</button>`;
         wireIngHandlers();
-        $('c-add-ing').onclick = () => { cIngs.push(blankIng()); renderCreate(); };
-        $('c-back').onclick   = () => { cStep='name'; cErr={}; renderCreate(); };
-        $('c-next').onclick   = () => {
-          if (!cIngs.some(i => i.name.trim())) { cErr={ings:true}; renderCreate(); return; }
+        $('c-add-ing').onclick=()=>{cIngs.push(blankIng()); renderCreate();};
+        $('c-back').onclick=()=>{cStep='name'; cErr={}; renderCreate();};
+        $('c-next').onclick=()=>{
+          if(!cIngs.some(i=>i.name.trim())){cErr={ings:true}; renderCreate(); return;}
           cStep='directions'; cErr={}; renderCreate();
         };
 
       } else {
-        $('create-body').innerHTML = `<div class="form-body">
-          ${cErr.dirs ? '<div class="error-msg">Add at least one step.</div>' : ''}
+        $('create-body').innerHTML=`<div class="form-body">
+          ${cErr.dirs?'<div class="error-msg">Add at least one step.</div>':''}
           <div id="dir-rows">${cDirs.map(dirRow).join('')}</div>
           <button class="add-row-btn" id="c-add-dir">+ Add step</button>
         </div>`;
-        $('create-footer').innerHTML = `<button class="back-btn" id="c-back">← Back</button><button class="save-btn" id="c-save">Save ✓</button>`;
+        $('create-footer').innerHTML=`<button class="back-btn" id="c-back">← Back</button><button class="save-btn" id="c-save">Save Recipe</button>`;
         wireDirHandlers();
-        $('c-add-dir').onclick = () => { cDirs.push(blankDir()); renderCreate(); };
-        $('c-back').onclick    = () => { cStep='ingredients'; cErr={}; renderCreate(); };
-        $('c-save').onclick    = () => {
-          if (!cDirs.some(d => d.text.trim())) { cErr={dirs:true}; renderCreate(); return; }
+        $('c-add-dir').onclick=()=>{cDirs.push(blankDir()); renderCreate();};
+        $('c-back').onclick=()=>{cStep='ingredients'; cErr={}; renderCreate();};
+        $('c-save').onclick=()=>{
+          if(!cDirs.some(d=>d.text.trim())){cErr={dirs:true}; renderCreate(); return;}
           S.recipes.push({
-            id: uid(), name: cName.trim(),
-            ingredients: cIngs.filter(i => i.name.trim()).map(i => ({ name:i.name.trim(), qty:i.qty, unit:i.unit.trim() })),
-            directions:  cDirs.filter(d => d.text.trim()).map(d => d.text.trim()),
+            id:uid(), name:cName.trim(),
+            ingredients:cIngs.filter(i=>i.name.trim()).map(i=>({name:i.name.trim(),qty:i.qty,unit:i.unit.trim()})),
+            directions:cDirs.filter(d=>d.text.trim()).map(d=>d.text.trim()),
           });
           save(); closeModal(); showSavedBanner(); renderRecipes();
         };
       }
     }
 
-    const ingRow = (ing) =>
+    const ingRow=(ing)=>
       `<div class="ing-form-row">
         <input class="form-input-sm" style="flex:1" value="${esc(ing.name)}" placeholder="Garlic" data-field="name" data-id="${ing.id}">
         <input class="form-input-sm" style="width:64px" value="${esc(ing.qty)}" placeholder="2" data-field="qty" data-id="${ing.id}" inputmode="decimal">
         <input class="form-input-sm" style="width:72px" value="${esc(ing.unit)}" placeholder="cloves" data-field="unit" data-id="${ing.id}">
-        <button class="rm-btn" data-rm-ing="${ing.id}" ${cIngs.length===1?'disabled':''}>−</button>
+        <button class="rm-btn" data-rm-ing="${ing.id}" ${cIngs.length===1?'disabled':''}>${MINUS_SVG}</button>
       </div>`;
 
     function wireIngHandlers() {
-      $('ing-rows').querySelectorAll('.form-input-sm[data-id]').forEach(inp =>
-        inp.addEventListener('input', e => {
-          const ing = cIngs.find(i => i.id === e.target.dataset.id);
-          if (ing) ing[e.target.dataset.field] = e.target.value;
+      $('ing-rows').querySelectorAll('.form-input-sm[data-id]').forEach(inp=>
+        inp.addEventListener('input',e=>{
+          const ing=cIngs.find(i=>i.id===e.target.dataset.id);
+          if(ing) ing[e.target.dataset.field]=e.target.value;
         })
       );
-      $('ing-rows').querySelectorAll('[data-rm-ing]').forEach(btn =>
-        btn.addEventListener('click', () => {
-          if (cIngs.length <= 1) return;
-          cIngs = cIngs.filter(i => i.id !== btn.dataset.rmIng);
-          renderCreate();
+      $('ing-rows').querySelectorAll('[data-rm-ing]').forEach(btn=>
+        btn.addEventListener('click',()=>{
+          if(cIngs.length<=1) return;
+          cIngs=cIngs.filter(i=>i.id!==btn.dataset.rmIng); renderCreate();
         })
       );
     }
 
-    const dirRow = (dir, i) =>
+    const dirRow=(dir,i)=>
       `<div class="dir-form-row">
         <span class="dir-num-label">${i+1}</span>
         <textarea class="dir-textarea" data-id="${dir.id}" placeholder="Step ${i+1}…">${esc(dir.text)}</textarea>
-        <button class="rm-btn" data-rm-dir="${dir.id}" ${cDirs.length===1?'disabled':''}>−</button>
+        <button class="rm-btn" data-rm-dir="${dir.id}" ${cDirs.length===1?'disabled':''}>${MINUS_SVG}</button>
       </div>`;
 
     function wireDirHandlers() {
-      $('dir-rows').querySelectorAll('.dir-textarea[data-id]').forEach(ta =>
-        ta.addEventListener('input', e => {
-          const d = cDirs.find(x => x.id === e.target.dataset.id);
-          if (d) d.text = e.target.value;
+      $('dir-rows').querySelectorAll('.dir-textarea[data-id]').forEach(ta=>
+        ta.addEventListener('input',e=>{
+          const d=cDirs.find(x=>x.id===e.target.dataset.id);
+          if(d) d.text=e.target.value;
         })
       );
-      $('dir-rows').querySelectorAll('[data-rm-dir]').forEach(btn =>
-        btn.addEventListener('click', () => {
-          if (cDirs.length <= 1) return;
-          cDirs = cDirs.filter(d => d.id !== btn.dataset.rmDir);
-          renderCreate();
+      $('dir-rows').querySelectorAll('[data-rm-dir]').forEach(btn=>
+        btn.addEventListener('click',()=>{
+          if(cDirs.length<=1) return;
+          cDirs=cDirs.filter(d=>d.id!==btn.dataset.rmDir); renderCreate();
         })
       );
     }
@@ -1198,51 +1342,37 @@
     /* ── Modal helpers ────────────────────────────────────────────────────────── */
     function showModal(id) {
       $('modal-overlay').classList.remove('hidden');
-      document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+      document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden'));
       $(id).classList.remove('hidden');
     }
     function closeModal() {
       $('modal-overlay').classList.add('hidden');
-      document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+      document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden'));
     }
 
     /* ── Event wiring ─────────────────────────────────────────────────────────── */
-    $('modal-overlay').addEventListener('click', e => {
-      if (e.target === $('modal-overlay')) closeModal();
-    });
-
-    document.querySelectorAll('.nav-btn').forEach(btn =>
-      btn.addEventListener('click', () => switchTab(btn.dataset.tab))
-    );
-
-    $('btn-new-recipe').addEventListener('click', openCreate);
-    $('create-cancel').addEventListener('click', closeModal);
-    $('picker-cancel').addEventListener('click', closeModal);
-
-    $('btn-reset-shopping').addEventListener('click', () => { S.checkedItems = {}; save(); renderShopping(); });
-
-    $('btn-print-book').addEventListener('click', () => { buildPrintBook(); window.print(); });
-    $('btn-export-yaml').addEventListener('click', downloadYaml);
-    $('btn-import-yaml').addEventListener('click', () => $('yaml-file-input').click());
-
-    $('yaml-file-input').addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        try {
-          const imported = importYaml(ev.target.result);
-          if (!imported.length) { alert('No recipes found in file.'); return; }
-          if (!confirm(`Import ${imported.length} recipe${imported.length!==1?'s':''}? They will be added to your existing library.`)) return;
-          S.recipes.push(...imported);
-          save(); renderBook();
-          alert(`${imported.length} recipe${imported.length!==1?'s':''} imported successfully!`);
-        } catch(_) {
-          alert('Could not parse YAML file. Please check the format.');
-        }
+    $('modal-overlay').addEventListener('click',e=>{if(e.target===$('modal-overlay')) closeModal();});
+    document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab)));
+    $('btn-new-recipe').addEventListener('click',openCreate);
+    $('create-cancel').addEventListener('click',closeModal);
+    $('picker-cancel').addEventListener('click',closeModal);
+    $('btn-reset-shopping').addEventListener('click',()=>{S.checkedItems={}; save(); renderShopping();});
+    $('btn-print-book').addEventListener('click',()=>{buildPrintBook(); window.print();});
+    $('btn-export-yaml').addEventListener('click',downloadYaml);
+    $('btn-import-yaml').addEventListener('click',()=>$('yaml-file-input').click());
+    $('yaml-file-input').addEventListener('change',e=>{
+      const file=e.target.files[0]; if(!file) return;
+      const reader=new FileReader();
+      reader.onload=ev=>{
+        try{
+          const imported=importYaml(ev.target.result);
+          if(!imported.length){alert('No recipes found in file.'); return;}
+          if(!confirm(`Import ${imported.length} recipe${imported.length!==1?'s':''}? They will be added to your existing library.`)) return;
+          S.recipes.push(...imported); save(); renderBook();
+          alert(`${imported.length} recipe${imported.length!==1?'s':''} imported successfully.`);
+        } catch(_){ alert('Could not parse YAML file. Please check the format.'); }
       };
-      reader.readAsText(file);
-      e.target.value = '';
+      reader.readAsText(file); e.target.value='';
     });
 
     /* ── Init ─────────────────────────────────────────────────────────────────── */
