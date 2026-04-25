@@ -726,6 +726,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
           Back
         </button>
+        <button class="pill-btn" id="rp-edit-btn">Edit</button>
       </div>
       <div class="rp-hero">
         <div class="rp-avatar" id="rp-avatar"></div>
@@ -787,7 +788,7 @@
     <div class="modal-handle"></div>
     <div class="modal-header">
       <button class="modal-cancel" id="create-cancel">Cancel</button>
-      <span class="modal-title">New Recipe</span>
+      <span class="modal-title" id="create-modal-title">New Recipe</span>
       <div style="width:56px"></div>
     </div>
     <div class="progress-bar-row" id="create-progress"></div>
@@ -1188,8 +1189,10 @@
 
   /* ── Recipe page ─────────────────────────────────────────────────────────── */
   let rpPrevTab = 'recipes';
+  let rpCurrentRecipe = null;
   function openDetail(recipe){ openRecipePage(recipe); }
   function openRecipePage(recipe){
+    rpCurrentRecipe = recipe;
     rpPrevTab = activeTab;
     $('rp-avatar').textContent = recipe.name.charAt(0).toUpperCase();
     $('rp-title').textContent  = recipe.name;
@@ -1215,6 +1218,7 @@
     $('screen-recipe').scrollTop = 0;
   }
   $('rp-back-btn').addEventListener('click', ()=>switchTab(rpPrevTab));
+  $('rp-edit-btn').addEventListener('click', ()=>{ if(rpCurrentRecipe) openEdit(rpCurrentRecipe); });
 
   /* ── Picker modal ────────────────────────────────────────────────────────── */
   let pickerSlot=null;
@@ -1254,14 +1258,27 @@
     );
   }
 
-  /* ── Create modal ────────────────────────────────────────────────────────── */
+  /* ── Create / Edit modal ─────────────────────────────────────────────────── */
   const STEPS=['name','ingredients','directions'];
   let cStep='name', cName='', cIngs=[], cDirs=[], cErr={};
+  let isEditing=false, editingId=null;
   const blankIng=()=>({id:uid(),name:'',qty:'',unit:''});
   const blankDir=()=>({id:uid(),text:''});
 
   function openCreate(){
+    isEditing=false; editingId=null;
     cStep='name'; cName=''; cIngs=[blankIng()]; cDirs=[blankDir()]; cErr={};
+    $('create-modal-title').textContent='New Recipe';
+    renderCreate(); showModal('modal-create');
+  }
+  function openEdit(recipe){
+    isEditing=true; editingId=recipe.id;
+    cStep='name';
+    cName=recipe.name;
+    cIngs=recipe.ingredients.map(i=>({id:uid(),name:i.name,qty:i.qty,unit:i.unit}));
+    cDirs=recipe.directions.map(t=>({id:uid(),text:t}));
+    cErr={};
+    $('create-modal-title').textContent='Edit Recipe';
     renderCreate(); showModal('modal-create');
   }
   function renderCreate(){
@@ -1314,12 +1331,20 @@
       $('c-back').onclick=()=>{cStep='ingredients'; cErr={}; renderCreate();};
       $('c-save').onclick=()=>{
         if(!cDirs.some(d=>d.text.trim())){cErr={dirs:true}; renderCreate(); return;}
-        S.recipes.push({
-          id:uid(), name:cName.trim(),
-          ingredients:cIngs.filter(i=>i.name.trim()).map(i=>({name:i.name.trim(),qty:i.qty,unit:i.unit.trim()})),
-          directions:cDirs.filter(d=>d.text.trim()).map(d=>d.text.trim()),
-        });
-        save(); closeModal(); showSavedBanner(); renderRecipes();
+        const updated={
+          id: isEditing ? editingId : uid(),
+          name: cName.trim(),
+          ingredients: cIngs.filter(i=>i.name.trim()).map(i=>({name:i.name.trim(),qty:i.qty,unit:i.unit.trim()})),
+          directions: cDirs.filter(d=>d.text.trim()).map(d=>d.text.trim()),
+        };
+        if(isEditing){
+          S.recipes=S.recipes.map(r=>r.id===editingId?updated:r);
+          DAYS_FULL.forEach(d=>SLOTS.forEach(s=>{if(S.plan[d][s.key]?.id===editingId) S.plan[d][s.key]=updated;}));
+          save(); closeModal(); openRecipePage(updated);
+        } else {
+          S.recipes.push(updated);
+          save(); closeModal(); showSavedBanner(); renderRecipes();
+        }
       };
     }
   }
